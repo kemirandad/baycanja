@@ -1,4 +1,4 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/suggest-evaluation-criteria.ts';
+// Se eliminó la importación del flujo 'suggest-evaluation-criteria'

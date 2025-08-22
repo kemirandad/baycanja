@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Medal, Users, ListOrdered, BrainCircuit, User } from 'lucide-react';
+import { Medal, Users, ListOrdered, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,7 +21,6 @@ export function Header() {
   const navItems = [
     { href: '/', label: 'Participantes', icon: Users },
     { href: '/leaderboard', label: 'Resultados', icon: ListOrdered },
-    { href: '/ai-advisor', label: 'Asesor IA', icon: BrainCircuit },
   ];
 
   return (
