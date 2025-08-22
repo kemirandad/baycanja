@@ -147,7 +147,7 @@ export default function Leaderboard() {
             .sort((a, b) => a.rank - b.rank)
             .map((p) => (
               <Collapsible key={p.id} asChild>
-                <tbody>
+                <React.Fragment>
                   <TableRow
                     className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
                   >
@@ -190,7 +190,7 @@ export default function Leaderboard() {
                       </TableCell>
                     </TableRow>
                   </CollapsibleContent>
-                </tbody>
+                </React.Fragment>
               </Collapsible>
             ))}
         </TableBody>
