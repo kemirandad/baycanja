@@ -28,15 +28,15 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
-      <div className="container flex h-20 items-center justify-between">
-        <div className="flex items-center">
-          <Link href="/" className="flex items-center space-x-3">
+      <div className="container flex h-20 items-center">
+        <div className="flex-1 flex items-center justify-start">
+           <Link href="/" className="flex items-center space-x-3">
             <Medal className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold tracking-tight">BAYCANJA Ranks</span>
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
+        <nav className="hidden md:flex flex-1 items-center justify-center gap-2">
             {navItems.map((item) => (
               <Button
                 asChild
@@ -52,7 +52,7 @@ export function Header() {
             ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex flex-1 items-center justify-end gap-4">
           {currentJudgeId && (
             <>
               <div className="flex items-center gap-2">
@@ -68,14 +68,14 @@ export function Header() {
         </div>
         
         {/* Mobile Nav */}
-        <div className="flex md:hidden items-center space-x-1">
+        <div className="flex md:hidden items-center justify-end w-full">
            {navItems.map((item) => (
             <Button
               asChild
               variant="ghost"
               size="icon"
               key={item.href}
-              className={cn(pathname === item.href && 'bg-accent')}
+              className={cn('ml-1', pathname === item.href && 'bg-accent')}
             >
               <Link href={item.href} aria-label={item.label}>
                 <item.icon className="h-5 w-5" />
@@ -83,7 +83,7 @@ export function Header() {
             </Button>
           ))}
            {currentJudgeId && (
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="ml-2">
               <LogOut className="h-5 w-5" />
             </Button>
            )}
