@@ -42,7 +42,7 @@ interface RankedParticipant {
   judgeScores: { judgeId: string; score: number }[];
 }
 
-const JUDGES = ['Juez 1', 'Juez 2', 'Juez 3', 'Juez 4'];
+const JUDGES = ['Juez 1', 'Juez 2', 'Juez 3'];
 
 export default function Leaderboard() {
   const { scores, calculateTotalScore, currentJudgeId } =
@@ -117,7 +117,8 @@ export default function Leaderboard() {
       (p) => p.category === category
     );
     
-    const isAnyScoreRegistered = Object.keys(scores).length > 0;
+    const isAnyScoreRegistered = Object.values(scores).some(judgeScores => Object.keys(judgeScores).length > 0);
+
 
     if (!isAnyScoreRegistered) {
       return (

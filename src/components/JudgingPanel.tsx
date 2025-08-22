@@ -24,7 +24,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -55,6 +55,7 @@ export default function JudgingPanel({
     setIsClient(true);
   }, []);
 
+  const isGuest = currentJudgeId === 'Invitado';
 
   const currentScores = getScoresForParticipant(currentJudgeId!, participant.id);
 
@@ -80,7 +81,7 @@ export default function JudgingPanel({
   }, [currentJudgeId, participant.id, getScoresForParticipant, form]);
 
   function onSubmit(data: JudgingFormValues) {
-    if (!currentJudgeId) return;
+    if (!currentJudgeId || isGuest) return;
     Object.entries(data).forEach(([criterionId, score]) => {
       setScore(currentJudgeId, participant.id, criterionId, score);
     });
@@ -91,9 +92,28 @@ export default function JudgingPanel({
       action: <CheckCircle className="text-green-500" />,
     });
   }
-
+  
   if (!isClient) {
     return null;
+  }
+
+  if (isGuest) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Modo Invitado</CardTitle>
+          <CardDescription>
+            Estás en modo de solo lectura. No puedes calificar a los participantes.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center h-64 text-muted-foreground bg-muted/50 rounded-lg">
+            <Eye className="h-16 w-16 mb-4" />
+            <p className="text-lg font-semibold">Visualización Activa</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

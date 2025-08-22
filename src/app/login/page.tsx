@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   const handleLogin = () => {
     if (!selectedJudge) {
-      setError('Por favor, selecciona un juez para continuar.');
+      setError('Por favor, selecciona un usuario para continuar.');
       return;
     }
     setError('');
@@ -48,21 +48,21 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-3xl font-extrabold">BAYCANJA Ranks</CardTitle>
           <CardDescription className="text-lg">
-            Bienvenido, Jurado. Por favor, identifíquese.
+            Bienvenido. Por favor, identifíquese.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="judge-select" className="text-base">Seleccionar Juez</Label>
+            <Label htmlFor="judge-select" className="text-base">Seleccionar Usuario</Label>
             <Select value={selectedJudge} onValueChange={setSelectedJudge}>
               <SelectTrigger id="judge-select" className="w-full text-base h-12">
-                <SelectValue placeholder="Seleccione su usuario de juez..." />
+                <SelectValue placeholder="Seleccione su usuario..." />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Juez 1">Juez 1</SelectItem>
                 <SelectItem value="Juez 2">Juez 2</SelectItem>
                 <SelectItem value="Juez 3">Juez 3</SelectItem>
-                <SelectItem value="Juez 4">Juez 4</SelectItem>
+                <SelectItem value="Invitado">Invitado (Solo Lectura)</SelectItem>
               </SelectContent>
             </Select>
             {error && <p className="text-sm font-medium text-destructive pt-1">{error}</p>}
