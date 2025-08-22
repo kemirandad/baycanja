@@ -15,6 +15,7 @@ import {
 import { Trophy, Medal, Award } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useRouter } from 'next/navigation';
 
 interface RankedParticipant {
   id: string;
@@ -31,13 +32,17 @@ export default function Leaderboard() {
     RankedParticipant[]
   >([]);
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    if (!currentJudgeId) {
+      router.push('/login');
+    }
+  }, [currentJudgeId, router]);
 
   useEffect(() => {
-    if (isClient) {
+    if (isClient && currentJudgeId) {
       const calculatedRanks = participants
         .map((participant) => ({
           ...participant,
@@ -82,6 +87,7 @@ export default function Leaderboard() {
   };
 
   const renderLeaderboardTable = (category: 'A' | 'B') => {
+    if (!currentJudgeId) return null;
     const categoryParticipants = rankedParticipants.filter(
       (p) => p.category === category
     );
@@ -134,14 +140,15 @@ export default function Leaderboard() {
     );
   };
 
-  if (!isClient) {
+  if (!isClient || !currentJudgeId) {
     return null; // Or a loading skeleton
   }
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Resultados para: {currentJudgeId}</h2>
           <Button
             variant="destructive"
             onClick={() => resetScores(currentJudgeId)}

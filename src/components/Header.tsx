@@ -1,68 +1,73 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Medal, Users, ListOrdered, User } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Medal, Users, ListOrdered, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useScoresStore } from '@/store/scores-store';
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { currentJudgeId, setCurrentJudgeId } = useScoresStore();
+
+  const handleLogout = () => {
+    setCurrentJudgeId(null);
+    router.push('/login');
+  };
 
   const navItems = [
     { href: '/', label: 'Participantes', icon: Users },
     { href: '/leaderboard', label: 'Resultados', icon: ListOrdered },
   ];
+  
+  if (pathname === '/login') {
+    return null;
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 flex items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <Medal className="h-6 w-6 text-primary" />
-            <span className="font-bold">BAYCANJA Ranks</span>
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
+      <div className="container flex h-20 items-center">
+        <div className="mr-8 flex items-center">
+          <Link href="/" className="flex items-center space-x-3">
+            <Medal className="h-8 w-8 text-primary" />
+            <span className="text-2xl font-bold tracking-tight">BAYCANJA Ranks</span>
           </Link>
         </div>
-        <div className="flex items-center ml-auto gap-4">
-          <nav className="hidden md:flex items-center space-x-2">
+
+        <nav className="hidden md:flex items-center gap-2">
             {navItems.map((item) => (
               <Button
                 asChild
                 variant="link"
                 key={item.href}
                 className={cn(
-                  'text-muted-foreground',
-                  pathname === item.href && 'text-primary font-semibold'
+                  'text-lg text-muted-foreground transition-colors hover:text-primary',
+                  pathname === item.href && 'text-primary font-bold'
                 )}
               >
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
-          </nav>
-          <div className="flex items-center gap-2">
-            <User className="h-5 w-5 text-muted-foreground" />
-            <Select value={currentJudgeId} onValueChange={setCurrentJudgeId}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Seleccionar Juez" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="juez1">Juez 1</SelectItem>
-                <SelectItem value="juez2">Juez 2</SelectItem>
-                <SelectItem value="juez3">Juez 3</SelectItem>
-                <SelectItem value="juez4">Juez 4</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        </nav>
+
+        <div className="flex items-center ml-auto gap-4">
+          {currentJudgeId && (
+            <>
+              <div className="flex items-center gap-2">
+                <User className="h-5 w-5 text-muted-foreground" />
+                <span className="font-semibold">{currentJudgeId}</span>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Salir
+              </Button>
+            </>
+          )}
         </div>
+
+        {/* Mobile Nav */}
         <div className="flex md:hidden items-center ml-auto space-x-1">
            {navItems.map((item) => (
             <Button

@@ -49,7 +49,7 @@ export default function JudgingPanel({
   } = useScoresStore();
   const { toast } = useToast();
 
-  const currentScores = getScoresForParticipant(currentJudgeId, participant.id);
+  const currentScores = getScoresForParticipant(currentJudgeId!, participant.id);
 
   const defaultValues = criteria.reduce((acc, criterion) => {
     acc[criterion.id] = [currentScores[criterion.id] ?? 0];
@@ -62,15 +62,18 @@ export default function JudgingPanel({
   });
   
   useEffect(() => {
-    const scores = getScoresForParticipant(currentJudgeId, participant.id);
-    const newDefaultValues = criteria.reduce((acc, c) => {
-      acc[c.id] = [scores[c.id] ?? 0];
-      return acc;
-    }, {} as Record<string, [number]>);
-    form.reset(newDefaultValues);
+    if (currentJudgeId) {
+      const scores = getScoresForParticipant(currentJudgeId, participant.id);
+      const newDefaultValues = criteria.reduce((acc, c) => {
+        acc[c.id] = [scores[c.id] ?? 0];
+        return acc;
+      }, {} as Record<string, [number]>);
+      form.reset(newDefaultValues);
+    }
   }, [currentJudgeId, participant.id, getScoresForParticipant, form]);
 
   function onSubmit(data: JudgingFormValues) {
+    if (!currentJudgeId) return;
     Object.entries(data).forEach(([criterionId, value]) => {
       const score = value[0];
       setScore(currentJudgeId, participant.id, criterionId, score);
@@ -102,7 +105,7 @@ export default function JudgingPanel({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-lg font-semibold">
-                      {criterion.name} (Ponderación: {criterion.weight * 100}%)
+                      {criterion.name} (Ponderación: {criterion.weight}%)
                     </FormLabel>
                     <FormDescription>{criterion.description}</FormDescription>
                     <div className="flex items-center gap-4 pt-2">

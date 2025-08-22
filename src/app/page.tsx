@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
 import { participants } from '@/lib/data';
 import {
   Card,
@@ -15,8 +14,20 @@ import {
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useRouter } from 'next/navigation';
+import { useScoresStore } from '@/store/scores-store';
+import { useEffect } from 'react';
 
 export default function Home() {
+  const router = useRouter();
+  const { currentJudgeId } = useScoresStore();
+
+  useEffect(() => {
+    if (!currentJudgeId) {
+      router.push('/login');
+    }
+  }, [currentJudgeId, router]);
+
   const photoHints = [
     'folk dance',
     'rock band',
@@ -24,6 +35,10 @@ export default function Home() {
     'magician stage',
     'public speaking',
     'live painting',
+    'stand up comedy',
+    'orchestra conductor',
+    'ballet dancers',
+    'dj mixing',
   ];
 
   const participantsA = participants.filter((p) => p.category === 'A');
@@ -32,7 +47,7 @@ export default function Home() {
   const renderParticipantCard = (participant: any, index: number) => (
     <Card
       key={participant.id}
-      className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+      className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl bg-card/80 backdrop-blur-sm"
     >
       <CardHeader className="p-0">
         <div className="aspect-video relative">
@@ -46,7 +61,7 @@ export default function Home() {
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-6">
-        <CardTitle className="text-2xl font-bold mb-2">
+        <CardTitle className="text-2xl font-bold mb-2 text-primary">
           {participant.name}
         </CardTitle>
         <CardDescription>{participant.description}</CardDescription>
@@ -61,20 +76,24 @@ export default function Home() {
     </Card>
   );
 
+  if (!currentJudgeId) {
+    return null;
+  }
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2">
+    <div className="container mx-auto py-12 px-4">
+      <div className="text-center mb-12">
+        <h1 className="text-5xl md:text-6xl font-extrabold text-primary mb-3 tracking-tight">
           Participantes de BAYCANJA
         </h1>
-        <p className="text-lg text-muted-foreground">
-          Conoce a los talentos de este año.
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Conoce a los talentosos artistas y oradores que compiten este año.
         </p>
       </div>
       <Tabs defaultValue="categoryA" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
-          <TabsTrigger value="categoryA">Categoría A</TabsTrigger>
-          <TabsTrigger value="categoryB">Categoría B</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-10 bg-transparent border-2 border-primary p-1 rounded-lg">
+          <TabsTrigger value="categoryA" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md">Categoría A</TabsTrigger>
+          <TabsTrigger value="categoryB" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md">Categoría B</TabsTrigger>
         </TabsList>
         <TabsContent value="categoryA">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

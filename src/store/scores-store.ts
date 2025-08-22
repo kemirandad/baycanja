@@ -13,8 +13,8 @@ type Scores = {
 
 type ScoresState = {
   scores: Scores;
-  currentJudgeId: string;
-  setCurrentJudgeId: (judgeId: string) => void;
+  currentJudgeId: string | null;
+  setCurrentJudgeId: (judgeId: string | null) => void;
   setScore: (
     judgeId: string,
     participantId: string,
@@ -38,7 +38,7 @@ export const useScoresStore = create<ScoresState>()(
   persist(
     (set, get) => ({
       scores: {},
-      currentJudgeId: 'juez1',
+      currentJudgeId: null,
       setCurrentJudgeId: (judgeId) => set({ currentJudgeId: judgeId }),
       setScore: (judgeId, participantId, criterionId, score) => {
         set((state) => ({
@@ -70,11 +70,13 @@ export const useScoresStore = create<ScoresState>()(
           return total + score * criterion.weight;
         }, 0);
 
-        return (weightedScore / totalWeight) * 10;
+        // The formula from the sheet is a simple weighted average, not multiplied by 10.
+        return weightedScore;
       },
       resetScores: (judgeId) => {
         if (
-          confirm(
+          typeof window !== 'undefined' &&
+          window.confirm(
             `¿Estás seguro de que quieres borrar las puntuaciones para ${judgeId}? Esta acción no se puede deshacer.`
           )
         ) {
@@ -90,7 +92,7 @@ export const useScoresStore = create<ScoresState>()(
       }
     }),
     {
-      name: 'baycanja-scores-storage-v2', // New name to avoid conflicts
+      name: 'baycanja-scores-storage-v3-login', // New name to avoid conflicts
       storage: createJSONStorage(() => localStorage),
     }
   )
