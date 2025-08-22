@@ -13,9 +13,25 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Trophy, Medal, Award } from 'lucide-react';
-import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  CartesianGrid
+} from 'recharts';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Button } from './ui/button';
+import { ChevronDown } from 'lucide-react';
 
 interface RankedParticipant {
   id: string;
@@ -23,10 +39,13 @@ interface RankedParticipant {
   totalScore: number;
   rank: number;
   category: 'A' | 'B';
+  judgeScores: { judgeId: string; score: number }[];
 }
 
+const JUDGES = ['Juez 1', 'Juez 2', 'Juez 3', 'Juez 4'];
+
 export default function Leaderboard() {
-  const { scores, calculateTotalScore, resetScores, currentJudgeId, hasScores } =
+  const { scores, calculateTotalScore, currentJudgeId } =
     useScoresStore();
   const [rankedParticipants, setRankedParticipants] = useState<
     RankedParticipant[]
@@ -44,17 +63,22 @@ export default function Leaderboard() {
   useEffect(() => {
     if (isClient && currentJudgeId) {
       const calculatedRanks = participants
-        .map((participant) => ({
-          ...participant,
-          totalScore: calculateTotalScore(
-            currentJudgeId,
-            participant.id,
-            criteria
-          ),
-        }))
+        .map((participant) => {
+          const judgeScores = JUDGES.map(judgeId => ({
+            judgeId,
+            score: calculateTotalScore(judgeId, participant.id, criteria),
+          }));
+
+          const avgScore = judgeScores.reduce((acc, s) => acc + s.score, 0) / (judgeScores.length || 1);
+
+          return {
+            ...participant,
+            totalScore: avgScore,
+            judgeScores,
+          };
+        })
         .sort((a, b) => b.totalScore - a.totalScore)
         .map((p, index, all) => {
-          // Rank calculation needs to be per category
           const categoryPeers = all.filter((x) => x.category === p.category);
           const categoryRank =
             categoryPeers.sort((a, b) => b.totalScore - a.totalScore).findIndex((x) => x.id === p.id) + 1;
@@ -65,6 +89,7 @@ export default function Leaderboard() {
             totalScore: p.totalScore,
             category: p.category,
             rank: categoryRank,
+            judgeScores: p.judgeScores
           };
         });
 
@@ -91,49 +116,80 @@ export default function Leaderboard() {
     const categoryParticipants = rankedParticipants.filter(
       (p) => p.category === category
     );
-    const isAnyScoreRegistered = participants.some((p) =>
-      p.category === category && hasScores(currentJudgeId, p.id)
-    );
+    
+    const isAnyScoreRegistered = Object.keys(scores).length > 0;
 
     if (!isAnyScoreRegistered) {
       return (
         <div className="text-center py-12 text-muted-foreground">
           <p className="text-lg">
-            Aún no se han registrado calificaciones en esta categoría para el{' '}
-            <strong>{currentJudgeId}</strong>.
+            Aún no se han registrado calificaciones.
           </p>
           <p>Ve a la página de participantes para empezar a evaluar.</p>
         </div>
       );
     }
-
+    
     return (
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px] text-center">Puesto</TableHead>
             <TableHead>Participante</TableHead>
-            <TableHead className="text-right">Puntuación Final</TableHead>
+            <TableHead className="text-right">Promedio Final</TableHead>
+            <TableHead className="w-[100px] text-center">Detalles</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {categoryParticipants
             .sort((a, b) => a.rank - b.rank)
             .map((p) => (
-              <TableRow
-                key={p.id}
-                className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
-              >
-                <TableCell className="text-center">
-                  <div className="flex justify-center items-center gap-2">
-                    {getPodiumIcon(p.rank)}
-                  </div>
-                </TableCell>
-                <TableCell className="text-lg">{p.name}</TableCell>
-                <TableCell className="text-right text-lg text-primary font-mono">
-                  {p.totalScore.toFixed(2)}
-                </TableCell>
-              </TableRow>
+              <Collapsible asChild key={p.id}>
+                <>
+                  <TableRow
+                    className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
+                  >
+                    <TableCell className="text-center">
+                      <div className="flex justify-center items-center gap-2">
+                        {getPodiumIcon(p.rank)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-lg">{p.name}</TableCell>
+                    <TableCell className="text-right text-lg text-primary font-mono">
+                      {p.totalScore.toFixed(2)}
+                    </TableCell>
+                    <TableCell className='text-center'>
+                      <CollapsibleTrigger asChild>
+                         <Button variant="ghost" size="sm">
+                          <ChevronDown className="h-4 w-4" />
+                          <span className="sr-only">Ver detalles</span>
+                        </Button>
+                      </CollapsibleTrigger>
+                    </TableCell>
+                  </TableRow>
+                  <CollapsibleContent asChild>
+                    <TableRow>
+                      <TableCell colSpan={4} className="p-0">
+                        <div className="p-4 bg-muted/50">
+                          <h4 className="text-lg font-semibold mb-2 text-center">Desglose de Puntuaciones para {p.name}</h4>
+                          <div className="h-64 w-full">
+                           <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={p.judgeScores} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="judgeId" />
+                                <YAxis domain={[0, 100]} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="score" name="Puntaje" fill="hsl(var(--primary))" />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  </CollapsibleContent>
+                </>
+              </Collapsible>
             ))}
         </TableBody>
       </Table>
@@ -141,21 +197,12 @@ export default function Leaderboard() {
   };
 
   if (!isClient || !currentJudgeId) {
-    return null; // Or a loading skeleton
+    return null; 
   }
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Resultados para: {currentJudgeId}</h2>
-          <Button
-            variant="destructive"
-            onClick={() => resetScores(currentJudgeId)}
-          >
-            Reiniciar Puntuaciones ({currentJudgeId})
-          </Button>
-        </div>
         <Tabs defaultValue="categoryA" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
             <TabsTrigger value="categoryA">Categoría A</TabsTrigger>

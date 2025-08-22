@@ -28,15 +28,15 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
-      <div className="container flex h-20 items-center">
-        <div className="mr-8 flex items-center">
+      <div className="container flex h-20 items-center justify-between">
+        <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-3">
             <Medal className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold tracking-tight">BAYCANJA Ranks</span>
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center gap-2">
+        <nav className="hidden md:flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
             {navItems.map((item) => (
               <Button
                 asChild
@@ -52,7 +52,7 @@ export function Header() {
             ))}
         </nav>
 
-        <div className="flex items-center ml-auto gap-4">
+        <div className="hidden md:flex items-center gap-4">
           {currentJudgeId && (
             <>
               <div className="flex items-center gap-2">
@@ -66,9 +66,9 @@ export function Header() {
             </>
           )}
         </div>
-
+        
         {/* Mobile Nav */}
-        <div className="flex md:hidden items-center ml-auto space-x-1">
+        <div className="flex md:hidden items-center space-x-1">
            {navItems.map((item) => (
             <Button
               asChild
@@ -82,6 +82,11 @@ export function Header() {
               </Link>
             </Button>
           ))}
+           {currentJudgeId && (
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="h-5 w-5" />
+            </Button>
+           )}
         </div>
       </div>
     </header>

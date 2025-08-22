@@ -16,7 +16,6 @@ import {
   FormMessage,
   FormDescription,
 } from '@/components/ui/form';
-import { Slider } from '@/components/ui/slider';
 import {
   Card,
   CardContent,
@@ -27,9 +26,11 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const formSchemaDefinition = criteria.reduce((acc, criterion) => {
-  acc[criterion.id] = z.array(z.number().min(0).max(10)).nonempty();
+  acc[criterion.id] = z.coerce.number().min(0).max(10);
   return acc;
 }, {} as Record<string, z.ZodTypeAny>);
 
@@ -52,30 +53,29 @@ export default function JudgingPanel({
   const currentScores = getScoresForParticipant(currentJudgeId!, participant.id);
 
   const defaultValues = criteria.reduce((acc, criterion) => {
-    acc[criterion.id] = [currentScores[criterion.id] ?? 0];
+    acc[criterion.id] = currentScores[criterion.id] ?? 0;
     return acc;
-  }, {} as Record<string, [number]>);
+  }, {} as Record<string, number>);
 
   const form = useForm<JudgingFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
-  
+
   useEffect(() => {
     if (currentJudgeId) {
       const scores = getScoresForParticipant(currentJudgeId, participant.id);
       const newDefaultValues = criteria.reduce((acc, c) => {
-        acc[c.id] = [scores[c.id] ?? 0];
+        acc[c.id] = scores[c.id] ?? 0;
         return acc;
-      }, {} as Record<string, [number]>);
+      }, {} as Record<string, number>);
       form.reset(newDefaultValues);
     }
   }, [currentJudgeId, participant.id, getScoresForParticipant, form]);
 
   function onSubmit(data: JudgingFormValues) {
     if (!currentJudgeId) return;
-    Object.entries(data).forEach(([criterionId, value]) => {
-      const score = value[0];
+    Object.entries(data).forEach(([criterionId, score]) => {
       setScore(currentJudgeId, participant.id, criterionId, score);
     });
 
@@ -104,25 +104,45 @@ export default function JudgingPanel({
                 name={criterion.id as keyof JudgingFormValues}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg font-semibold">
-                      {criterion.name} (Ponderación: {criterion.weight}%)
-                    </FormLabel>
-                    <FormDescription>{criterion.description}</FormDescription>
-                    <div className="flex items-center gap-4 pt-2">
-                      <FormControl>
-                        <Slider
-                          min={0}
-                          max={10}
-                          step={0.5}
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          className="flex-1"
-                        />
-                      </FormControl>
-                      <span className="font-bold text-primary w-12 text-center text-lg">
-                        {field.value?.[0].toFixed(1)}
+                    <div className='flex justify-between items-center'>
+                      <div>
+                        <FormLabel className="text-lg font-semibold">
+                          {criterion.name} (Ponderación: {criterion.weight}%)
+                        </FormLabel>
+                        <FormDescription>{criterion.description}</FormDescription>
+                      </div>
+                      <span className="font-bold text-primary text-xl">
+                        {field.value?.toFixed(1) ?? '0.0'}
                       </span>
                     </div>
+
+                    <FormControl>
+                      <RadioGroup
+                        className="flex flex-wrap gap-2 pt-2"
+                        value={String(field.value)}
+                        onValueChange={(value) => field.onChange(Number(value))}
+                      >
+                        {[...Array(11).keys()].map((i) => (
+                          <FormItem key={i} className="flex items-center space-x-1 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value={String(i)} id={`${field.name}-${i}`} className="sr-only" />
+                            </FormControl>
+                            <FormLabel htmlFor={`${field.name}-${i}`}>
+                              <div
+                                className={cn(
+                                  'w-10 h-10 rounded-md flex items-center justify-center font-bold border-2 cursor-pointer transition-colors',
+                                  field.value === i
+                                    ? 'bg-primary text-primary-foreground border-primary'
+                                    : 'bg-muted/50 hover:bg-accent hover:border-accent-foreground'
+                                )}
+                              >
+                                {i}
+                              </div>
+                            </FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

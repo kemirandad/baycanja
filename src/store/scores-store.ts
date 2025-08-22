@@ -59,21 +59,17 @@ export const useScoresStore = create<ScoresState>()(
       },
       calculateTotalScore: (judgeId, participantId, criteria) => {
         const participantScores = get().scores[judgeId]?.[participantId] || {};
-        const totalWeight = criteria.reduce(
-          (sum, criterion) => sum + criterion.weight,
-          0
-        );
-        if (totalWeight === 0) return 0;
-
-        const weightedScore = criteria.reduce((total, criterion) => {
+        
+        const totalScore = criteria.reduce((total, criterion) => {
           const score = participantScores[criterion.id] || 0;
-          return total + score * criterion.weight;
+          return total + (score * (criterion.weight/100));
         }, 0);
-
-        // The formula from the sheet is a simple weighted average, not multiplied by 10.
-        return weightedScore;
+        
+        // The final score should be on a 1-100 scale, so we multiply by 10.
+        return totalScore * 10;
       },
       resetScores: (judgeId) => {
+        // This function is kept for potential future use but the button is removed from UI.
         if (
           typeof window !== 'undefined' &&
           window.confirm(
@@ -92,7 +88,7 @@ export const useScoresStore = create<ScoresState>()(
       }
     }),
     {
-      name: 'baycanja-scores-storage-v3-login', // New name to avoid conflicts
+      name: 'baycanja-scores-storage-v3-login',
       storage: createJSONStorage(() => localStorage),
     }
   )
