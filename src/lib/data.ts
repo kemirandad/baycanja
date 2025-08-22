@@ -59,28 +59,33 @@ export const participants: Participant[] = [
 
 export const criteria: Criterion[] = [
   {
-    id: 'originality',
-    name: 'Originalidad y Creatividad',
-    description: 'Nivel de innovación y singularidad de la presentación.',
-    weight: 0.3,
+    id: 'expression',
+    name: 'Expresión e interpretación',
+    description: 'Capacidad del participante para transmitir emociones y conectar con la canción.',
+    weight: 0.30,
   },
   {
-    id: 'technique',
-    name: 'Habilidad Técnica',
-    description:
-      'Dominio y ejecución de las habilidades requeridas para la presentación.',
-    weight: 0.3,
-  },
-  {
-    id: 'presentation',
-    name: 'Presencia Escénica',
-    description: 'Carisma, confianza y conexión con el público.',
+    id: 'tuning',
+    name: 'Afinación y ritmo',
+    description: 'Precisión en las notas musicales y mantenimiento del tempo.',
     weight: 0.25,
   },
   {
-    id: 'impact',
-    name: 'Impacto General y Audiencia',
-    description: 'La impresión general y la reacción del público.',
+    id: 'diction',
+    name: 'Dicción y claridad',
+    description: 'Claridad en la pronunciación de las palabras al cantar.',
     weight: 0.15,
+  },
+  {
+    id: 'stage_presence',
+    name: 'Presencia escénica',
+    description: 'Confianza, carisma y desenvolvimiento en el escenario.',
+    weight: 0.20,
+  },
+  {
+    id: 'originality',
+    name: 'Originalidad',
+    description: 'Propuesta única y creativa en la presentación o interpretación.',
+    weight: 0.10,
   },
 ];

@@ -59,6 +59,7 @@ export function Header() {
                 <SelectItem value="juez1">Juez 1</SelectItem>
                 <SelectItem value="juez2">Juez 2</SelectItem>
                 <SelectItem value="juez3">Juez 3</SelectItem>
+                <SelectItem value="juez4">Juez 4</SelectItem>
               </SelectContent>
             </Select>
           </div>
