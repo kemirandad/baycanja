@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/collapsible';
 import { Button } from './ui/button';
 import { ChevronDown } from 'lucide-react';
+import React from 'react';
 
 interface RankedParticipant {
   id: string;
@@ -146,7 +147,7 @@ export default function Leaderboard() {
             .sort((a, b) => a.rank - b.rank)
             .map((p) => (
               <Collapsible asChild key={p.id}>
-                <TableBody>
+                <>
                   <TableRow
                     className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
                   >
@@ -189,7 +190,7 @@ export default function Leaderboard() {
                       </TableCell>
                     </TableRow>
                   </CollapsibleContent>
-                </TableBody>
+                </>
               </Collapsible>
             ))}
         </TableBody>
