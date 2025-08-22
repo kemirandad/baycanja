@@ -146,8 +146,8 @@ export default function Leaderboard() {
           {categoryParticipants
             .sort((a, b) => a.rank - b.rank)
             .map((p) => (
-              <Collapsible asChild key={p.id}>
-                <>
+              <Collapsible key={p.id} asChild>
+                <tbody>
                   <TableRow
                     className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
                   >
@@ -190,7 +190,7 @@ export default function Leaderboard() {
                       </TableCell>
                     </TableRow>
                   </CollapsibleContent>
-                </>
+                </tbody>
               </Collapsible>
             ))}
         </TableBody>
