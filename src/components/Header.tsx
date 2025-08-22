@@ -6,11 +6,17 @@ import { Medal, Users, ListOrdered, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useScoresStore } from '@/store/scores-store';
+import { useEffect, useState } from 'react';
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { currentJudgeId, setCurrentJudgeId } = useScoresStore();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogout = () => {
     setCurrentJudgeId(null);
@@ -53,7 +59,7 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex flex-1 items-center justify-end gap-4">
-          {currentJudgeId && (
+          {isClient && currentJudgeId && (
             <>
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5 text-muted-foreground" />
@@ -82,7 +88,7 @@ export function Header() {
               </Link>
             </Button>
           ))}
-           {currentJudgeId && (
+           {isClient && currentJudgeId && (
             <Button variant="ghost" size="icon" onClick={handleLogout} className="ml-2">
               <LogOut className="h-5 w-5" />
             </Button>

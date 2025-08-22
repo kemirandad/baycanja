@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -49,6 +49,12 @@ export default function JudgingPanel({
     currentJudgeId,
   } = useScoresStore();
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const currentScores = getScoresForParticipant(currentJudgeId!, participant.id);
 
@@ -84,6 +90,10 @@ export default function JudgingPanel({
       description: `La calificación de ${currentJudgeId} para ${participant.name} ha sido guardada.`,
       action: <CheckCircle className="text-green-500" />,
     });
+  }
+
+  if (!isClient) {
+    return null;
   }
 
   return (
