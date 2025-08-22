@@ -2,42 +2,63 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Criterion } from '@/lib/types';
 
+// Scores are now nested under a judgeId
 type Scores = {
-  [participantId: string]: {
-    [criterionId: string]: number;
+  [judgeId: string]: {
+    [participantId: string]: {
+      [criterionId: string]: number;
+    };
   };
 };
 
 type ScoresState = {
   scores: Scores;
-  setScore: (participantId: string, criterionId: string, score: number) => void;
+  currentJudgeId: string;
+  setCurrentJudgeId: (judgeId: string) => void;
+  setScore: (
+    judgeId: string,
+    participantId: string,
+    criterionId: string,
+    score: number
+  ) => void;
   getScoresForParticipant: (
+    judgeId: string,
     participantId: string
   ) => { [criterionId: string]: number };
-  calculateTotalScore: (participantId: string, criteria: Criterion[]) => number;
-  resetScores: () => void;
+  calculateTotalScore: (
+    judgeId: string,
+    participantId: string,
+    criteria: Criterion[]
+  ) => number;
+  resetScores: (judgeId: string) => void;
+  hasScores: (judgeId: string, participantId: string) => boolean;
 };
 
 export const useScoresStore = create<ScoresState>()(
   persist(
     (set, get) => ({
       scores: {},
-      setScore: (participantId, criterionId, score) => {
+      currentJudgeId: 'juez1',
+      setCurrentJudgeId: (judgeId) => set({ currentJudgeId: judgeId }),
+      setScore: (judgeId, participantId, criterionId, score) => {
         set((state) => ({
           scores: {
             ...state.scores,
-            [participantId]: {
-              ...state.scores[participantId],
-              [criterionId]: score,
+            [judgeId]: {
+              ...state.scores[judgeId],
+              [participantId]: {
+                ...state.scores[judgeId]?.[participantId],
+                [criterionId]: score,
+              },
             },
           },
         }));
       },
-      getScoresForParticipant: (participantId) => {
-        return get().scores[participantId] || {};
+      getScoresForParticipant: (judgeId, participantId) => {
+        return get().scores[judgeId]?.[participantId] || {};
       },
-      calculateTotalScore: (participantId, criteria) => {
-        const participantScores = get().scores[participantId] || {};
+      calculateTotalScore: (judgeId, participantId, criteria) => {
+        const participantScores = get().scores[judgeId]?.[participantId] || {};
         const totalWeight = criteria.reduce(
           (sum, criterion) => sum + criterion.weight,
           0
@@ -51,18 +72,25 @@ export const useScoresStore = create<ScoresState>()(
 
         return (weightedScore / totalWeight) * 10;
       },
-      resetScores: () => {
+      resetScores: (judgeId) => {
         if (
           confirm(
-            '¿Estás seguro de que quieres borrar todas las puntuaciones? Esta acción no se puede deshacer.'
+            `¿Estás seguro de que quieres borrar las puntuaciones para ${judgeId}? Esta acción no se puede deshacer.`
           )
         ) {
-          set({ scores: {} });
+          set((state) => {
+            const newScores = { ...state.scores };
+            delete newScores[judgeId];
+            return { scores: newScores };
+          });
         }
       },
+      hasScores: (judgeId, participantId) => {
+        return !!get().scores[judgeId]?.[participantId];
+      }
     }),
     {
-      name: 'baycanja-scores-storage',
+      name: 'baycanja-scores-storage-v2', // New name to avoid conflicts
       storage: createJSONStorage(() => localStorage),
     }
   )

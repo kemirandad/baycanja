@@ -4,6 +4,7 @@ export interface Participant {
   description: string;
   longDescription: string;
   photoUrl: string;
+  category: 'A' | 'B';
 }
 
 export interface Criterion {

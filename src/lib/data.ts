@@ -8,6 +8,7 @@ export const participants: Participant[] = [
     longDescription:
       'El Grupo de Danza Folclórica nos trae un recorrido por las danzas más representativas de nuestro país, mostrando la riqueza cultural a través de coreografías llenas de energía y trajes coloridos. Llevan meses preparando esta presentación especial para BAYCANJA.',
     photoUrl: 'https://placehold.co/600x400.png',
+    category: 'A',
   },
   {
     id: '2',
@@ -16,6 +17,7 @@ export const participants: Participant[] = [
     longDescription:
       'Con riffs potentes y una voz inconfundible, "Los Innovadores" prometen hacer vibrar al público. Esta banda de rock, formada por estudiantes de último año, compone sus propias canciones inspiradas en los clásicos del rock y los desafíos de la vida moderna.',
     photoUrl: 'https://placehold.co/600x400.png',
+    category: 'A',
   },
   {
     id: '3',
@@ -24,6 +26,7 @@ export const participants: Participant[] = [
     longDescription:
       'Ana, con su excepcional talento vocal, interpretará una balada que tocará el corazón de todos. Su pasión por la música es evidente en cada nota, y su presencia en el escenario es simplemente magnética.',
     photoUrl: 'https://placehold.co/600x400.png',
+    category: 'B',
   },
   {
     id: '4',
@@ -32,6 +35,7 @@ export const participants: Participant[] = [
     longDescription:
       'Los hermanos "Ilusión Gemela" han preparado un acto de magia que desafiará la lógica y la percepción. Con trucos nunca antes vistos y una gran dosis de humor, garantizan un espectáculo inolvidable para todos los asistentes de BAYCANJA.',
     photoUrl: 'https://placehold.co/600x400.png',
+    category: 'A',
   },
   {
     id: '5',
@@ -40,6 +44,7 @@ export const participants: Participant[] = [
     longDescription:
       'Carlos, un orador nato, presentará un discurso sobre la importancia de la perseverancia y los sueños. Con su poderosa retórica y carisma, busca motivar a sus compañeros a nunca rendirse y a luchar por sus metas.',
     photoUrl: 'https://placehold.co/600x400.png',
+    category: 'B',
   },
   {
     id: '6',
@@ -48,6 +53,7 @@ export const participants: Participant[] = [
     longDescription:
       'Un colectivo de artistas plásticos creará una obra de arte en vivo durante el evento. Utilizando diversas técnicas y materiales, transformarán un lienzo en blanco en una pieza que capture la esencia y el espíritu de BAYCANJA.',
     photoUrl: 'https://placehold.co/600x400.png',
+    category: 'B',
   },
 ];
 

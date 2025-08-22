@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle } from 'lucide-react';
+import { useEffect } from 'react';
 
 const formSchemaDefinition = criteria.reduce((acc, criterion) => {
   acc[criterion.id] = z.array(z.number().min(0).max(10)).nonempty();
@@ -41,10 +42,14 @@ export default function JudgingPanel({
 }: {
   participant: Participant;
 }) {
-  const { setScore, getScoresForParticipant } = useScoresStore();
+  const {
+    setScore,
+    getScoresForParticipant,
+    currentJudgeId,
+  } = useScoresStore();
   const { toast } = useToast();
 
-  const currentScores = getScoresForParticipant(participant.id);
+  const currentScores = getScoresForParticipant(currentJudgeId, participant.id);
 
   const defaultValues = criteria.reduce((acc, criterion) => {
     acc[criterion.id] = [currentScores[criterion.id] ?? 0];
@@ -55,16 +60,25 @@ export default function JudgingPanel({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
+  
+  useEffect(() => {
+    const scores = getScoresForParticipant(currentJudgeId, participant.id);
+    const newDefaultValues = criteria.reduce((acc, c) => {
+      acc[c.id] = [scores[c.id] ?? 0];
+      return acc;
+    }, {} as Record<string, [number]>);
+    form.reset(newDefaultValues);
+  }, [currentJudgeId, participant.id, getScoresForParticipant, form]);
 
   function onSubmit(data: JudgingFormValues) {
     Object.entries(data).forEach(([criterionId, value]) => {
       const score = value[0];
-      setScore(participant.id, criterionId, score);
+      setScore(currentJudgeId, participant.id, criterionId, score);
     });
 
     toast({
       title: 'Calificación Guardada',
-      description: `La calificación para ${participant.name} ha sido guardada con éxito.`,
+      description: `La calificación de ${currentJudgeId} para ${participant.name} ha sido guardada.`,
       action: <CheckCircle className="text-green-500" />,
     });
   }
@@ -72,7 +86,7 @@ export default function JudgingPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Panel de Jurado</CardTitle>
+        <CardTitle className="text-2xl">Panel de Jurado ({currentJudgeId})</CardTitle>
         <CardDescription>
           Califica la presentación en una escala de 0 a 10 para cada criterio.
         </CardDescription>
