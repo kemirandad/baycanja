@@ -258,7 +258,7 @@ export default function Leaderboard() {
         <Tabs defaultValue="canto" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-6">
             <TabsTrigger value="canto">Canto</TabsTrigger>
-            <TabsTrigger value="baile">Baile</Tabs-Trigger>
+            <TabsTrigger value="baile">Baile</TabsTrigger>
           </TabsList>
           <TabsContent value="canto">
             {renderCategoryTabs('Canto')}
