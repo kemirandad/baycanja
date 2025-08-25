@@ -28,7 +28,7 @@ import {
 } from 'recharts';
 import { Button } from './ui/button';
 import React from 'react';
-import type { Participant, Criterion } from '@/lib/types';
+import type { Participant, Criterion, User } from '@/lib/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,7 +40,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { collection, onSnapshot, query, writeBatch, getDocs, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, writeBatch, getDocs, where, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 interface ScoreData {
@@ -195,8 +195,7 @@ export default function Leaderboard() {
       };
     });
   
-    // Function to rank a list of participants
-    const rankParticipants = (list: typeof averagedParticipants) => {
+    const rankParticipants = (list: typeof averagedParticipants): RankedParticipant[] => {
       const sorted = [...list].sort((a, b) => b.totalScore - a.totalScore);
       return sorted.map((p, index) => ({
         ...p,
@@ -204,13 +203,12 @@ export default function Leaderboard() {
       }));
     };
   
-    // Filter and rank for each group
     const cantoA = rankParticipants(averagedParticipants.filter(p => p.eventType === 'Canto' && p.category === 'A'));
     const cantoB = rankParticipants(averagedParticipants.filter(p => p.eventType === 'Canto' && p.category === 'B'));
     const baileA = rankParticipants(averagedParticipants.filter(p => p.eventType === 'Baile' && p.category === 'A'));
     const baileB = rankParticipants(averagedParticipants.filter(p => p.eventType === 'Baile' && p.category === 'B'));
   
-    return [...cantoA, ...cantoB, ...baileA, ...baileB] as RankedParticipant[];
+    return [...cantoA, ...cantoB, ...baileA, ...baileB];
   }, [allScores]);
 
   const resetScoresForEvent = async (eventType: 'Canto' | 'Baile') => {
@@ -222,37 +220,22 @@ export default function Leaderboard() {
   
     const scoresCollection = collection(db, "scores");
     const batch = writeBatch(db);
-  
-    // Firestore `where in` query supports up to 30 items. 
-    // If you have more participants, this needs to be chunked.
-    // Assuming less than 30 participants per event type for now.
-    const participantIds = allScores.map(s => s.id.split('_')[1]);
-    const relevantParticipantIds = participantIds.filter(id => participantIdsToReset.includes(id));
-  
-    if (relevantParticipantIds.length > 0) {
-      const scoresToDeleteQuery = query(scoresCollection, where('participantId', 'in', relevantParticipantIds));
-      const snapshot = await getDocs(scoresToDeleteQuery);
+    
+    // Create a query to find all score documents for participants in the specified event type.
+    // Firestore `where in` queries support up to 30 items. Chunk if necessary.
+    const q = query(scoresCollection, where('participantId', 'in', participantIdsToReset));
+    
+    try {
+      const snapshot = await getDocs(q);
       snapshot.docs.forEach(doc => {
-        // This is a safety check, but the query should handle it.
-        const pId = doc.id.split('_')[1];
-        const pData = participants.find(p => p.id === pId);
-        if (pData?.eventType === eventType) {
-            batch.delete(doc.ref);
-        }
-      });
-    }
-  
-    // Legacy check for documents without participantId field (based on original implementation)
-    const allDocsSnapshot = await getDocs(scoresCollection);
-    allDocsSnapshot.forEach(doc => {
-      const participantId = doc.id.split('_')[1];
-      if (participantIdsToReset.includes(participantId) && !doc.data().participantId) {
         batch.delete(doc.ref);
-      }
-    });
+      });
   
-  
-    await batch.commit();
+      await batch.commit();
+      console.log(`Successfully reset scores for ${eventType}`);
+    } catch (error) {
+      console.error("Error resetting scores: ", error);
+    }
   };
 
   const renderLeaderboardTable = (eventType: 'Canto' | 'Baile', category: 'A' | 'B') => {
@@ -274,6 +257,15 @@ export default function Leaderboard() {
         </div>
       );
     }
+    
+    if (categoryParticipants.length === 0) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          <p className="text-lg">No hay participantes calificados en esta categoría aún.</p>
+        </div>
+      );
+    }
+
 
     return (
       <Table>

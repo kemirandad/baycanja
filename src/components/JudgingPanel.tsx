@@ -43,7 +43,8 @@ type JudgingFormValues = z.infer<typeof formSchema>;
 
 const saveScoresToFirestore = async (judgeId: string, participantId: string, scores: JudgingFormValues) => {
   const docRef = doc(db, 'scores', `${judgeId}_${participantId}`);
-  await setDoc(docRef, scores);
+  // Add participantId to the document for easier querying
+  await setDoc(docRef, { ...scores, participantId });
 };
 
 const getScoresFromFirestore = async (judgeId: string, participantId: string) => {
