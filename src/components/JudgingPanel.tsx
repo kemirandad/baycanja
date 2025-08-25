@@ -42,12 +42,12 @@ const formSchema = z.object(formSchemaDefinition);
 type JudgingFormValues = z.infer<typeof formSchema>;
 
 const saveScoresToFirestore = async (judgeId: string, participantId: string, scores: JudgingFormValues) => {
-  const docRef = doc(db, 'scores', `${judgeId}_${participantId}`);
+  const docRef = doc(db, 'scores', `${judgeId}:${participantId}`);
   await setDoc(docRef, { ...scores, participantId });
 };
 
 const getScoresFromFirestore = async (judgeId: string, participantId: string) => {
-  const docRef = doc(db, 'scores', `${judgeId}_${participantId}`);
+  const docRef = doc(db, 'scores', `${judgeId}:${participantId}`);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
     const data = docSnap.data();

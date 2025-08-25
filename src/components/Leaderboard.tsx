@@ -48,7 +48,7 @@ interface ScoreData {
 }
 
 interface FirestoreScoreDoc {
-  id: string; // judgeId_participantId
+  id: string; // judgeId:participantId
   scores: ScoreData & { participantId: string };
 }
 
@@ -62,7 +62,6 @@ const calculateTotalScore = (scores: ScoreData, criteria: Criterion[]): number =
   if (!scores) return 0;
   const totalScore = criteria.reduce((total, criterion) => {
     const scoreValue = scores[criterion.id];
-    // Asegurarse de que el valor es un número antes de sumarlo
     if (typeof scoreValue === 'number') {
       return total + (scoreValue * (criterion.weight / 100));
     }
@@ -177,7 +176,7 @@ export default function Leaderboard() {
     const averagedParticipants = participants.map((participant) => {
       const participantScoreDocs = scoresByParticipant[participant.id] || [];
       const judgeScores = participantScoreDocs.map(s => {
-        const judgeId = s.id.split('_')[0];
+        const judgeId = s.id.split(':')[0];
         const judgeUsername = users.find(u => u.id === judgeId)?.username || 'Desconocido';
         return {
           judgeUsername,
