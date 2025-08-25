@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Users, ListOrdered, User, LogOut } from 'lucide-react';
+import { Users, ListOrdered, User, LogOut, Tv } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useScoresStore } from '@/store/scores-store';
@@ -37,6 +37,7 @@ export function Header() {
   const navItems = [
     { href: '/', label: 'Participantes', icon: Users },
     { href: '/leaderboard', label: 'Resultados', icon: ListOrdered },
+    { href: '/public-results', label: 'Vista Pública', icon: Tv },
   ];
   
   if (pathname === '/login') {

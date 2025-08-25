@@ -138,7 +138,7 @@ const ParticipantRow = ({ participant }: { participant: RankedParticipant }) => 
   );
 };
 
-export default function Leaderboard() {
+export default function Leaderboard({ isPublic = false }: { isPublic?: boolean }) {
   const { currentUser } = useScoresStore();
   const [allScores, setAllScores] = useState<FirestoreScoreDoc[]>([]);
   const [isClient, setIsClient] = useState(false);
@@ -146,19 +146,16 @@ export default function Leaderboard() {
 
   useEffect(() => {
     setIsClient(true);
-    if (!currentUser) {
+    if (!isPublic && !currentUser) {
       router.push('/login');
     }
-  }, [currentUser, router]);
+  }, [currentUser, router, isPublic]);
 
   useEffect(() => {
     if (!db) return;
     const q = query(collection(db, "scores"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const scoresData = querySnapshot.docs.map(doc => ({
-        ...doc.data(),
-        id: doc.id
-      }) as FirestoreScoreDoc);
+      const scoresData = querySnapshot.docs.map(doc => doc.data() as FirestoreScoreDoc);
       setAllScores(scoresData);
     });
 
@@ -243,9 +240,7 @@ export default function Leaderboard() {
     }
   };
 
-  const renderLeaderboardTable = (data: RankedParticipant[]) => {
-    if (!currentUser) return null;
-    
+  const renderLeaderboardTable = (data: RankedParticipant[]) => {    
     if (data.length === 0) {
       return (
         <div className="text-center py-12 text-muted-foreground">
@@ -300,7 +295,7 @@ export default function Leaderboard() {
         <TabsContent value="categoryB">
           {renderLeaderboardTable(dataB)}
         </TabsContent>
-        {currentUser?.role === 'ADMIN' && (
+        {currentUser?.role === 'ADMIN' && !isPublic && (
            <div className="mt-8 text-center">
            <AlertDialog>
              <AlertDialogTrigger asChild>
@@ -328,29 +323,31 @@ export default function Leaderboard() {
     );
   };
 
-  if (!isClient || !currentUser) {
+  if (!isClient || (!isPublic && !currentUser)) {
     return null;
   }
   
-  const canSeeCanto = currentUser.role === 'ADMIN' || currentUser.role === 'CANTO';
-  const canSeeBaile = currentUser.role === 'ADMIN' || currentUser.role === 'BAILE';
+  const canSeeCanto = isPublic || currentUser?.role === 'ADMIN' || currentUser?.role === 'CANTO';
+  const canSeeBaile = isPublic || currentUser?.role === 'ADMIN' || currentUser?.role === 'BAILE';
   const defaultTab = canSeeCanto ? 'canto' : 'baile';
+
+  const showTabs = isPublic || currentUser?.role === 'ADMIN';
 
   return (
     <Card>
       <CardContent className="pt-6">
-       {currentUser.role === 'ADMIN' ? (
+       {showTabs ? (
         <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-6">
-            <TabsTrigger value="canto"><Mic className="mr-2"/>Canto</TabsTrigger>
-            <TabsTrigger value="baile"><Clapperboard className="mr-2"/>Baile</TabsTrigger>
+            {canSeeCanto && <TabsTrigger value="canto"><Mic className="mr-2"/>Canto</TabsTrigger>}
+            {canSeeBaile && <TabsTrigger value="baile"><Clapperboard className="mr-2"/>Baile</TabsTrigger>}
           </TabsList>
-          <TabsContent value="canto">
+          {canSeeCanto && <TabsContent value="canto">
             {renderCategoryTabs('Canto')}
-          </TabsContent>
-          <TabsContent value="baile">
+          </TabsContent>}
+          {canSeeBaile && <TabsContent value="baile">
             {renderCategoryTabs('Baile')}
-          </TabsContent>
+          </TabsContent>}
         </Tabs>
          ) : (
           <>
