@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mic, Clapperboard, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Mic, Clapperboard, CheckCircle2, Trophy } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
 import { useScoresStore } from '@/store/scores-store';
@@ -158,6 +158,14 @@ export default function Home() {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Conoce a los talentosos artistas y oradores que compiten este año.
         </p>
+        <div className="mt-8">
+          <Button asChild size="lg" className="text-lg py-7 px-8 shadow-lg hover:shadow-primary/40 transition-shadow">
+            <Link href="/public-results">
+              <Trophy className="mr-3 h-6 w-6" />
+              Ver Resultados en Vivo
+            </Link>
+          </Button>
+        </div>
       </div>
       
       {currentUser.role === 'ADMIN' ? (
