@@ -31,6 +31,7 @@ const useHasScores = (judgeId: string | undefined, participantId: string) => {
       return;
     }
     const checkScore = async () => {
+      if (!judgeId || !participantId) return;
       const docRef = doc(db, 'scores', `${judgeId}:${participantId}`);
       const docSnap = await getDoc(docRef);
       setHasScore(docSnap.exists());

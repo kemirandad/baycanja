@@ -48,8 +48,9 @@ interface ScoreData {
 }
 
 interface FirestoreScoreDoc {
-  id: string; // judgeId:participantId
-  scores: ScoreData & { participantId: string };
+  participantId: string;
+  judgeId: string;
+  [key: string]: any; // scores
 }
 
 interface RankedParticipant extends Participant {
@@ -58,9 +59,9 @@ interface RankedParticipant extends Participant {
   judgeScores: { judgeUsername: string; score: number }[];
 }
 
-const calculateTotalScore = (scores: ScoreData, criteria: Criterion[]): number => {
+const calculateTotalScore = (scores: ScoreData, criteriaList: Criterion[]): number => {
   if (!scores) return 0;
-  const totalScore = criteria.reduce((total, criterion) => {
+  const totalScore = criteriaList.reduce((total, criterion) => {
     const scoreValue = scores[criterion.id];
     if (typeof scoreValue === 'number') {
       return total + (scoreValue * (criterion.weight / 100));
@@ -153,10 +154,7 @@ export default function Leaderboard() {
     if (!db) return;
     const q = query(collection(db, "scores"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const scoresData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        scores: doc.data() as ScoreData & { participantId: string },
-      }));
+      const scoresData = querySnapshot.docs.map(doc => doc.data() as FirestoreScoreDoc);
       setAllScores(scoresData);
     });
 
@@ -165,7 +163,7 @@ export default function Leaderboard() {
 
   const rankedParticipants = useMemo(() => {
     const scoresByParticipant = allScores.reduce((acc, scoreDoc) => {
-      const participantId = scoreDoc.scores.participantId;
+      const { participantId } = scoreDoc;
       if (!acc[participantId]) {
         acc[participantId] = [];
       }
@@ -176,11 +174,10 @@ export default function Leaderboard() {
     const averagedParticipants = participants.map((participant) => {
       const participantScoreDocs = scoresByParticipant[participant.id] || [];
       const judgeScores = participantScoreDocs.map(s => {
-        const judgeId = s.id.split(':')[0];
-        const judgeUsername = users.find(u => u.id === judgeId)?.username || 'Desconocido';
+        const judgeUsername = users.find(u => u.id === s.judgeId)?.username || 'Desconocido';
         return {
           judgeUsername,
-          score: calculateTotalScore(s.scores, criteria),
+          score: calculateTotalScore(s, criteria),
         };
       });
   
