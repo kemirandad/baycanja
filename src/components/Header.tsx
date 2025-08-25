@@ -67,17 +67,15 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
-      <div className="container flex h-20 items-center">
-        <div className="flex-1 flex items-center justify-start">
-          <Link href="/" className="flex items-center space-x-3">
-            <Logo />
-            <span className="text-2xl font-bold tracking-tight">BAYCANJA</span>
-          </Link>
-        </div>
+      <div className="container flex h-20 items-center justify-between">
+        <Link href="/" className="flex items-center space-x-3">
+          <Logo />
+          <span className="hidden sm:inline-block text-2xl font-bold tracking-tight">BAYCANJA</span>
+        </Link>
         
         {currentUser && (
           <>
-            <nav className="hidden md:flex flex-1 items-center justify-center gap-2">
+            <nav className="hidden md:flex items-center gap-2">
                 {navItems.map((item) => (
                   <Button
                     asChild
@@ -93,7 +91,7 @@ export function Header() {
                 ))}
             </nav>
 
-            <div className="hidden md:flex flex-1 items-center justify-end gap-4">
+            <div className="hidden md:flex items-center justify-end gap-4">
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5 text-muted-foreground" />
                 <span className="font-semibold">{currentUser.username}</span>
@@ -104,7 +102,7 @@ export function Header() {
               </Button>
             </div>
             
-            <div className="flex md:hidden items-center justify-end w-full">
+            <div className="flex md:hidden items-center justify-end">
               {navItems.map((item) => (
                 <Button
                   asChild

@@ -1,3 +1,4 @@
+
 'use client';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -14,12 +15,12 @@ const Logo = () => (
 
 export function Footer() {
   const pathname = usePathname();
-  if (pathname === '/login') {
+  if (pathname === '/login' || pathname === '/public-results') {
     return null;
   }
   return (
     <footer className="bg-secondary text-secondary-foreground mt-16">
-      <div className="container py-8 flex flex-col sm:flex-row justify-between items-center text-center sm:text-left space-y-4 sm:space-y-0">
+      <div className="container py-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
         <div className="flex items-center space-x-2">
           <Logo />
           <span className="font-bold text-lg">BAYCANJA</span>
