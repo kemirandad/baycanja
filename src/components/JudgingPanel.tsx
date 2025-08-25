@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { criteria } from '@/lib/data';
+import { cantoCriteria, baileCriteria } from '@/lib/data';
 import type { Participant } from '@/lib/types';
 import { useScoresStore } from '@/store/scores-store';
 import { Button } from '@/components/ui/button';
@@ -32,14 +32,16 @@ import { useRouter } from 'next/navigation';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-const formSchemaDefinition = criteria.reduce((acc, criterion) => {
-  acc[criterion.id] = z.coerce.number().min(0).max(10);
-  return acc;
-}, {} as Record<string, z.ZodTypeAny>);
+const generateFormSchema = (participant: Participant) => {
+  const criteria = participant.eventType === 'Canto' ? cantoCriteria : baileCriteria;
+  const schemaDefinition = criteria.reduce((acc, criterion) => {
+    acc[criterion.id] = z.coerce.number().min(0).max(10);
+    return acc;
+  }, {} as Record<string, z.ZodTypeAny>);
+  return z.object(schemaDefinition);
+};
 
-const formSchema = z.object(formSchemaDefinition);
-
-type JudgingFormValues = z.infer<typeof formSchema>;
+type JudgingFormValues = z.infer<ReturnType<typeof generateFormSchema>>;
 
 const saveScoresToFirestore = async (judgeId: string, participantId: string, scores: JudgingFormValues) => {
   const docRef = doc(db, 'scores', `${judgeId}:${participantId}`);
@@ -80,6 +82,9 @@ export default function JudgingPanel({
   
   const judgeId = currentUser?.id;
   const canJudge = currentUser && (currentUser.role === 'ADMIN' || (currentUser.role === 'CANTO' && participant.eventType === 'Canto') || (currentUser.role === 'BAILE' && participant.eventType === 'Baile'));
+  
+  const criteria = participant.eventType === 'Canto' ? cantoCriteria : baileCriteria;
+  const formSchema = generateFormSchema(participant);
 
   const defaultValues = criteria.reduce((acc, criterion) => {
     acc[criterion.id] = 0;

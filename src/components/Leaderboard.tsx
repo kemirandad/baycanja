@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useScoresStore } from '@/store/scores-store';
-import { participants, criteria, users } from '@/lib/data';
+import { participants, cantoCriteria, baileCriteria, users } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
@@ -59,8 +59,9 @@ interface RankedParticipant extends Participant {
   judgeScores: { judgeUsername: string; score: number }[];
 }
 
-const calculateTotalScore = (scores: ScoreData, criteriaList: Criterion[]): number => {
+const calculateTotalScore = (scores: ScoreData, eventType: 'Canto' | 'Baile'): number => {
   if (!scores) return 0;
+  const criteriaList = eventType === 'Canto' ? cantoCriteria : baileCriteria;
   const totalScore = criteriaList.reduce((total, criterion) => {
     const scoreValue = scores[criterion.id];
     if (typeof scoreValue === 'number') {
@@ -154,7 +155,10 @@ export default function Leaderboard() {
     if (!db) return;
     const q = query(collection(db, "scores"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const scoresData = querySnapshot.docs.map(doc => doc.data() as FirestoreScoreDoc);
+      const scoresData = querySnapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id
+      }) as FirestoreScoreDoc);
       setAllScores(scoresData);
     });
 
@@ -175,9 +179,10 @@ export default function Leaderboard() {
       const participantScoreDocs = scoresByParticipant[participant.id] || [];
       const judgeScores = participantScoreDocs.map(s => {
         const judgeUsername = users.find(u => u.id === s.judgeId)?.username || 'Desconocido';
+        const { judgeId, participantId, ...scores } = s;
         return {
           judgeUsername,
-          score: calculateTotalScore(s, criteria),
+          score: calculateTotalScore(scores, participant.eventType),
         };
       });
   

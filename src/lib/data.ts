@@ -213,41 +213,80 @@ export const participants: Participant[] = [
   },
 ];
 
-export const criteria: Criterion[] = [
+export const cantoCriteria: Criterion[] = [
   {
-    id: 'originality',
-    name: 'Originalidad',
-    description: 'Propuesta única y creativa en la presentación o interpretación.',
-    weight: 10,
+    id: 'expression',
+    name: 'Expresión e interpretación',
+    description: 'Capacidad de transmitir emociones y conectar con la audiencia.',
+    weight: 30,
   },
   {
-    id: 'message',
-    name: 'Mensaje',
-    description: 'Claridad y potencia del mensaje transmitido.',
-    weight: 20,
+    id: 'tuning',
+    name: 'Afinación y ritmo',
+    description: 'Precisión en la entonación y sincronía con la música.',
+    weight: 25,
   },
   {
     id: 'diction',
-    name: 'Dicción',
-    description: 'Claridad en la pronunciación y articulación.',
-    weight: 10,
+    name: 'Dicción y claridad',
+    description: 'Claridad en la pronunciación y articulación de las palabras.',
+    weight: 15,
   },
   {
     id: 'stage_presence',
-    name: 'Dominio Escénico',
+    name: 'Presencia escénica',
     description: 'Confianza, carisma y desenvolvimiento en el escenario.',
-    weight: 25,
+    weight: 20,
   },
+  {
+    id: 'originality',
+    name: 'Originalidad',
+    description: 'Propuesta única y creativa en la interpretación.',
+    weight: 10,
+  },
+];
+
+export const baileCriteria: Criterion[] = [
   {
     id: 'technique',
     name: 'Técnica',
-    description: 'Habilidad y ejecución técnica en la disciplina presentada.',
-    weight: 25,
+    description: 'Ejecución precisa y limpia de los movimientos.',
+    weight: 20,
+  },
+  {
+    id: 'rhythm',
+    name: 'Ritmo y musicalidad',
+    description: 'Sincronización con la música y la interpretación del ritmo.',
+    weight: 15,
+  },
+  {
+    id: 'coordination',
+    name: 'Coordinación y sincronía',
+    description: 'Uniformidad y precisión en los movimientos grupales.',
+    weight: 15,
+  },
+  {
+    id: 'body_expression',
+    name: 'Expresión corporal y emocional',
+    description: 'Capacidad de comunicar emociones a través del movimiento.',
+    weight: 15,
   },
   {
     id: 'costume',
-    name: 'Vestuario',
-    description: 'Adecuación y creatividad del vestuario.',
+    name: 'Vestuario y presencia escénica',
+    description: 'Adecuación y creatividad del vestuario y la puesta en escena.',
+    weight: 10,
+  },
+  {
+    id: 'creativity',
+    name: 'Originalidad y creatividad',
+    description: 'Propuesta coreográfica innovadora y única.',
+    weight: 15,
+  },
+  {
+    id: 'difficulty',
+    name: 'Dificultad de la coreografía',
+    description: 'Complejidad y exigencia técnica de la coreografía.',
     weight: 10,
   },
 ];
