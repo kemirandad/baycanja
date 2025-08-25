@@ -25,11 +25,6 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { Button } from './ui/button';
 import { ChevronDown } from 'lucide-react';
 import React from 'react';
@@ -46,6 +41,93 @@ interface RankedParticipant {
 }
 
 const JUDGES = ['Juez 1', 'Juez 2', 'Juez 3'];
+
+const DetailsRow = ({ participant }: { participant: RankedParticipant }) => {
+  return (
+    <TableRow>
+      <TableCell colSpan={4} className="p-0">
+        <div className="p-4 bg-muted/50">
+          <h4 className="text-lg font-semibold mb-2 text-center">
+            Desglose de Puntuaciones para {participant.name}
+          </h4>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={participant.judgeScores}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="judgeId" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Legend />
+                <Bar
+                  dataKey="score"
+                  name="Puntaje"
+                  fill="hsl(var(--primary))"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const ParticipantRow = ({
+  participant,
+}: {
+  participant: RankedParticipant;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const getPodiumIcon = (rank: number) => {
+    const props = { className: 'h-6 w-6' };
+    switch (rank) {
+      case 1:
+        return <Trophy {...props} color="#FFD700" />;
+      case 2:
+        return <Medal {...props} color="#C0C0C0" />;
+      case 3:
+        return <Award {...props} color="#CD7F32" />;
+      default:
+        return <span className="font-mono text-lg">{rank}</span>;
+    }
+  };
+
+  return (
+    <React.Fragment>
+      <TableRow className={participant.rank <= 3 ? 'font-bold bg-secondary/50' : ''}>
+        <TableCell className="text-center">
+          <div className="flex justify-center items-center gap-2">
+            {getPodiumIcon(participant.rank)}
+          </div>
+        </TableCell>
+        <TableCell className="text-lg">{participant.name}</TableCell>
+        <TableCell className="text-right text-lg text-primary font-mono">
+          {participant.totalScore.toFixed(2)}
+        </TableCell>
+        <TableCell className="text-center">
+          <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)}>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${
+                isOpen ? 'rotate-180' : ''
+              }`}
+            />
+            <span className="sr-only">Ver detalles</span>
+          </Button>
+        </TableCell>
+      </TableRow>
+      {isOpen && <DetailsRow participant={participant} />}
+    </React.Fragment>
+  );
+};
 
 export default function Leaderboard() {
   const { scores, calculateTotalScore, currentJudgeId } = useScoresStore();
@@ -106,20 +188,6 @@ export default function Leaderboard() {
     }
   }, [scores, calculateTotalScore, isClient, currentJudgeId]);
 
-  const getPodiumIcon = (rank: number) => {
-    const props = { className: 'h-6 w-6' };
-    switch (rank) {
-      case 1:
-        return <Trophy {...props} color="#FFD700" />;
-      case 2:
-        return <Medal {...props} color="#C0C0C0" />;
-      case 3:
-        return <Award {...props} color="#CD7F32" />;
-      default:
-        return <span className="font-mono text-lg">{rank}</span>;
-    }
-  };
-
   const renderLeaderboardTable = (
     eventType: 'Canto' | 'Baile',
     category: 'A' | 'B'
@@ -156,66 +224,7 @@ export default function Leaderboard() {
           {categoryParticipants
             .sort((a, b) => a.rank - b.rank)
             .map((p) => (
-              <Collapsible asChild key={p.id}>
-                <React.Fragment>
-                  <TableRow
-                    className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
-                  >
-                    <TableCell className="text-center">
-                      <div className="flex justify-center items-center gap-2">
-                        {getPodiumIcon(p.rank)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-lg">{p.name}</TableCell>
-                    <TableCell className="text-right text-lg text-primary font-mono">
-                      {p.totalScore.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <CollapsibleTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <ChevronDown className="h-4 w-4" />
-                          <span className="sr-only">Ver detalles</span>
-                        </Button>
-                      </CollapsibleTrigger>
-                    </TableCell>
-                  </TableRow>
-                  <CollapsibleContent asChild>
-                    <TableRow>
-                      <TableCell colSpan={4} className="p-0">
-                        <div className="p-4 bg-muted/50">
-                          <h4 className="text-lg font-semibold mb-2 text-center">
-                            Desglose de Puntuaciones para {p.name}
-                          </h4>
-                          <div className="h-64 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart
-                                data={p.judgeScores}
-                                margin={{
-                                  top: 5,
-                                  right: 30,
-                                  left: 20,
-                                  bottom: 5,
-                                }}
-                              >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="judgeId" />
-                                <YAxis domain={[0, 100]} />
-                                <Tooltip />
-                                <Legend />
-                                <Bar
-                                  dataKey="score"
-                                  name="Puntaje"
-                                  fill="hsl(var(--primary))"
-                                />
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  </CollapsibleContent>
-                </React.Fragment>
-              </Collapsible>
+              <ParticipantRow key={p.id} participant={p} />
             ))}
         </TableBody>
       </Table>
@@ -249,7 +258,7 @@ export default function Leaderboard() {
         <Tabs defaultValue="canto" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-6">
             <TabsTrigger value="canto">Canto</TabsTrigger>
-            <TabsTrigger value="baile">Baile</TabsTrigger>
+            <TabsTrigger value="baile">Baile</Tabs-Trigger>
           </TabsList>
           <TabsContent value="canto">
             {renderCategoryTabs('Canto')}
