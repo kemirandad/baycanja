@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Criterion } from '@/lib/types';
+import type { Criterion, User } from '@/lib/types';
 
-// Scores are now nested under a judgeId
+type StoredUser = Omit<User, 'password'>;
+
 type Scores = {
   [judgeId: string]: {
     [participantId: string]: {
@@ -13,8 +14,8 @@ type Scores = {
 
 type ScoresState = {
   scores: Scores;
-  currentJudgeId: string | null;
-  setCurrentJudgeId: (judgeId: string | null) => void;
+  currentUser: StoredUser | null;
+  setCurrentUser: (user: StoredUser | null) => void;
   setScore: (
     judgeId: string,
     participantId: string,
@@ -38,8 +39,8 @@ export const useScoresStore = create<ScoresState>()(
   persist(
     (set, get) => ({
       scores: {},
-      currentJudgeId: null,
-      setCurrentJudgeId: (judgeId) => set({ currentJudgeId: judgeId }),
+      currentUser: null,
+      setCurrentUser: (user) => set({ currentUser: user }),
       setScore: (judgeId, participantId, criterionId, score) => {
         set((state) => ({
           scores: {
@@ -65,11 +66,9 @@ export const useScoresStore = create<ScoresState>()(
           return total + (score * (criterion.weight/100));
         }, 0);
         
-        // The final score should be on a 1-100 scale, so we multiply by 10.
         return totalScore * 10;
       },
       resetScores: (judgeId) => {
-        // This function is kept for potential future use but the button is removed from UI.
         if (
           typeof window !== 'undefined' &&
           window.confirm(
@@ -88,7 +87,7 @@ export const useScoresStore = create<ScoresState>()(
       }
     }),
     {
-      name: 'baycanja-scores-storage-v3-login',
+      name: 'baycanja-scores-storage-v4-roles',
       storage: createJSONStorage(() => localStorage),
     }
   )

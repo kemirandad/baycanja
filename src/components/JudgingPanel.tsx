@@ -24,7 +24,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, Eye } from 'lucide-react';
+import { CheckCircle, Eye, Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -46,7 +46,7 @@ export default function JudgingPanel({
   const {
     setScore,
     getScoresForParticipant,
-    currentJudgeId,
+    currentUser,
   } = useScoresStore();
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
@@ -54,10 +54,11 @@ export default function JudgingPanel({
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
+  const judgeId = currentUser?.id;
+  const canJudge = currentUser && (currentUser.role === 'ADMIN' || (currentUser.role === 'CANTO' && participant.eventType === 'Canto') || (currentUser.role === 'BAILE' && participant.eventType === 'Baile'));
 
-  const isGuest = currentJudgeId === 'Invitado';
-
-  const currentScores = getScoresForParticipant(currentJudgeId!, participant.id);
+  const currentScores = judgeId ? getScoresForParticipant(judgeId, participant.id) : {};
 
   const defaultValues = criteria.reduce((acc, criterion) => {
     acc[criterion.id] = currentScores[criterion.id] ?? 0;
@@ -70,46 +71,47 @@ export default function JudgingPanel({
   });
 
   useEffect(() => {
-    if (currentJudgeId) {
-      const scores = getScoresForParticipant(currentJudgeId, participant.id);
+    if (judgeId) {
+      const scores = getScoresForParticipant(judgeId, participant.id);
       const newDefaultValues = criteria.reduce((acc, c) => {
         acc[c.id] = scores[c.id] ?? 0;
         return acc;
       }, {} as Record<string, number>);
       form.reset(newDefaultValues);
     }
-  }, [currentJudgeId, participant.id, getScoresForParticipant, form]);
+  }, [judgeId, participant.id, getScoresForParticipant, form]);
 
   function onSubmit(data: JudgingFormValues) {
-    if (!currentJudgeId || isGuest) return;
+    if (!judgeId || !canJudge) return;
+
     Object.entries(data).forEach(([criterionId, score]) => {
-      setScore(currentJudgeId, participant.id, criterionId, score);
+      setScore(judgeId, participant.id, criterionId, score);
     });
 
     toast({
       title: 'Calificación Guardada',
-      description: `La calificación de ${currentJudgeId} para ${participant.name} ha sido guardada.`,
+      description: `La calificación de ${currentUser.username} para ${participant.name} ha sido guardada.`,
       action: <CheckCircle className="text-green-500" />,
     });
   }
   
-  if (!isClient) {
+  if (!isClient || !currentUser) {
     return null;
   }
 
-  if (isGuest) {
+  if (!canJudge) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Modo Invitado</CardTitle>
+          <CardTitle className="text-2xl">Acceso Denegado</CardTitle>
           <CardDescription>
-            Estás en modo de solo lectura. No puedes calificar a los participantes.
+            No tienes permiso para calificar a este participante.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center h-64 text-muted-foreground bg-muted/50 rounded-lg">
-            <Eye className="h-16 w-16 mb-4" />
-            <p className="text-lg font-semibold">Visualización Activa</p>
+            <Lock className="h-16 w-16 mb-4" />
+            <p className="text-lg font-semibold text-center">Tu rol de {currentUser.role.toLowerCase()} solo te permite calificar eventos de {currentUser.role.toLowerCase()}.</p>
           </div>
         </CardContent>
       </Card>
@@ -119,7 +121,7 @@ export default function JudgingPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Panel de Jurado ({currentJudgeId})</CardTitle>
+        <CardTitle className="text-2xl">Panel de Jurado ({currentUser.username})</CardTitle>
         <CardDescription>
           Califica la presentación en una escala de 0 a 10 para cada criterio.
         </CardDescription>

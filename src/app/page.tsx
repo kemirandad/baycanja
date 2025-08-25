@@ -12,22 +12,22 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Mic, Clapperboard } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
 import { useScoresStore } from '@/store/scores-store';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { Participant } from '@/lib/types';
 
 export default function Home() {
   const router = useRouter();
-  const { currentJudgeId } = useScoresStore();
+  const { currentUser } = useScoresStore();
 
   useEffect(() => {
-    if (!currentJudgeId) {
+    if (!currentUser) {
       router.push('/login');
     }
-  }, [currentJudgeId, router]);
+  }, [currentUser, router]);
 
   const photoHints = [
     'folk dance', 'rock band', 'singer woman', 'magician stage',
@@ -36,6 +36,15 @@ export default function Home() {
     'modern dance', 'hip hop dance', 'traditional dance', 'dance crew',
     'salsa dancing', 'flamenco dancer', 'group dance', 'contemporary dance'
   ];
+  
+  const filteredParticipants = useMemo(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'ADMIN') {
+      return participants;
+    }
+    const eventType = currentUser.role === 'CANTO' ? 'Canto' : 'Baile';
+    return participants.filter(p => p.eventType === eventType);
+  }, [currentUser]);
 
   const renderParticipantCard = (participant: Participant, index: number) => (
     <Card
@@ -70,9 +79,13 @@ export default function Home() {
   );
 
   const renderCategoryTabs = (eventType: 'Canto' | 'Baile') => {
-    const participantsA = participants.filter((p) => p.eventType === eventType && p.category === 'A');
-    const participantsB = participants.filter((p) => p.eventType === eventType && p.category === 'B');
+    const participantsA = filteredParticipants.filter((p) => p.eventType === eventType && p.category === 'A');
+    const participantsB = filteredParticipants.filter((p) => p.eventType === eventType && p.category === 'B');
     const baseIndex = eventType === 'Canto' ? 0 : 12;
+
+    if (participantsA.length === 0 && participantsB.length === 0) {
+      return null;
+    }
 
     return (
       <Tabs defaultValue="categoryA" className="w-full">
@@ -94,9 +107,13 @@ export default function Home() {
     );
   }
 
-  if (!currentJudgeId) {
+  if (!currentUser) {
     return null;
   }
+  
+  const canSeeCanto = currentUser.role === 'ADMIN' || currentUser.role === 'CANTO';
+  const canSeeBaile = currentUser.role === 'ADMIN' || currentUser.role === 'BAILE';
+  const defaultTab = canSeeCanto ? 'canto' : 'baile';
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -108,18 +125,26 @@ export default function Home() {
           Conoce a los talentosos artistas y oradores que compiten este año.
         </p>
       </div>
-      <Tabs defaultValue="canto" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-6">
-          <TabsTrigger value="canto">Canto</TabsTrigger>
-          <TabsTrigger value="baile">Baile</TabsTrigger>
-        </TabsList>
-        <TabsContent value="canto">
-          {renderCategoryTabs('Canto')}
-        </TabsContent>
-        <TabsContent value="baile">
-          {renderCategoryTabs('Baile')}
-        </TabsContent>
-      </Tabs>
+      
+      {currentUser.role === 'ADMIN' ? (
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-6">
+            <TabsTrigger value="canto"><Mic className="mr-2"/>Canto</TabsTrigger>
+            <TabsTrigger value="baile"><Clapperboard className="mr-2"/>Baile</TabsTrigger>
+          </TabsList>
+          <TabsContent value="canto">
+            {renderCategoryTabs('Canto')}
+          </TabsContent>
+          <TabsContent value="baile">
+            {renderCategoryTabs('Baile')}
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <>
+          {canSeeCanto && renderCategoryTabs('Canto')}
+          {canSeeBaile && renderCategoryTabs('Baile')}
+        </>
+      )}
     </div>
   );
 }

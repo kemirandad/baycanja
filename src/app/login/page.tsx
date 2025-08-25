@@ -12,29 +12,29 @@ import {
   CardTitle,
   CardFooter
 } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { LogIn, Medal } from 'lucide-react';
+import { users } from '@/lib/data';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setCurrentJudgeId } = useScoresStore();
-  const [selectedJudge, setSelectedJudge] = useState('');
+  const { setCurrentUser } = useScoresStore();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = () => {
-    if (!selectedJudge) {
-      setError('Por favor, selecciona un usuario para continuar.');
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (!user) {
+      setError('Credenciales incorrectas. Por favor, inténtelo de nuevo.');
       return;
     }
+
     setError('');
-    setCurrentJudgeId(selectedJudge);
+    const { password: _, ...userToStore } = user;
+    setCurrentUser(userToStore);
     router.push('/');
   };
 
@@ -48,25 +48,31 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-3xl font-extrabold">BAYCANJA Ranks</CardTitle>
           <CardDescription className="text-lg">
-            Bienvenido. Por favor, identifíquese.
+            Bienvenido. Por favor, inicie sesión.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="judge-select" className="text-base">Seleccionar Usuario</Label>
-            <Select value={selectedJudge} onValueChange={setSelectedJudge}>
-              <SelectTrigger id="judge-select" className="w-full text-base h-12">
-                <SelectValue placeholder="Seleccione su usuario..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Juez 1">Juez 1</SelectItem>
-                <SelectItem value="Juez 2">Juez 2</SelectItem>
-                <SelectItem value="Juez 3">Juez 3</SelectItem>
-                <SelectItem value="Invitado">Invitado (Solo Lectura)</SelectItem>
-              </SelectContent>
-            </Select>
-            {error && <p className="text-sm font-medium text-destructive pt-1">{error}</p>}
+            <Label htmlFor="username">Usuario</Label>
+            <Input 
+              id="username" 
+              placeholder="Ingrese su usuario" 
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Contraseña</Label>
+            <Input 
+              id="password" 
+              type="password"
+              placeholder="Ingrese su contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+            />
+          </div>
+          {error && <p className="text-sm font-medium text-destructive pt-1">{error}</p>}
         </CardContent>
         <CardFooter>
           <Button onClick={handleLogin} className="w-full text-lg py-6">

@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentJudgeId, setCurrentJudgeId } = useScoresStore();
+  const { currentUser, setCurrentUser } = useScoresStore();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export function Header() {
   }, []);
 
   const handleLogout = () => {
-    setCurrentJudgeId(null);
+    setCurrentUser(null);
     router.push('/login');
   };
 
@@ -59,11 +59,11 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex flex-1 items-center justify-end gap-4">
-          {isClient && currentJudgeId && (
+          {isClient && currentUser && (
             <>
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5 text-muted-foreground" />
-                <span className="font-semibold">{currentJudgeId}</span>
+                <span className="font-semibold">{currentUser.username}</span>
               </div>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
@@ -88,7 +88,7 @@ export function Header() {
               </Link>
             </Button>
           ))}
-           {isClient && currentJudgeId && (
+           {isClient && currentUser && (
             <Button variant="ghost" size="icon" onClick={handleLogout} className="ml-2">
               <LogOut className="h-5 w-5" />
             </Button>

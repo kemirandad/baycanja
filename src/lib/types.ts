@@ -14,3 +14,10 @@ export interface Criterion {
   description: string;
   weight: number;
 }
+
+export interface User {
+  id: string;
+  username: string;
+  password?: string; // Password is for login check only, won't be stored in client state
+  role: 'ADMIN' | 'CANTO' | 'BAILE';
+}

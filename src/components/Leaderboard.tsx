@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useScoresStore } from '@/store/scores-store';
-import { participants, criteria } from '@/lib/data';
+import { participants, criteria, users } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Trophy, Medal, Award } from 'lucide-react';
+import { Trophy, Medal, Award, Mic, Clapperboard } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
 import {
@@ -40,7 +40,8 @@ interface RankedParticipant {
   judgeScores: { judgeId: string; score: number }[];
 }
 
-const JUDGES = ['Juez 1', 'Juez 2', 'Juez 3'];
+const CANTO_JUDGES = users.filter(u => u.role === 'CANTO' || u.role === 'ADMIN').map(u => u.id);
+const BAILE_JUDGES = users.filter(u => u.role === 'BAILE' || u.role === 'ADMIN').map(u => u.id);
 
 const DetailsRow = ({ participant }: { participant: RankedParticipant }) => {
   return (
@@ -53,7 +54,7 @@ const DetailsRow = ({ participant }: { participant: RankedParticipant }) => {
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={participant.judgeScores}
+                data={participant.judgeScores.filter(s => s.score > 0)}
                 margin={{
                   top: 5,
                   right: 30,
@@ -64,7 +65,7 @@ const DetailsRow = ({ participant }: { participant: RankedParticipant }) => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="judgeId" />
                 <YAxis domain={[0, 100]} />
-                <Tooltip />
+                <Tooltip formatter={(value: number, name, props) => [value.toFixed(2), "Puntaje"]}/>
                 <Legend />
                 <Bar
                   dataKey="score"
@@ -130,7 +131,7 @@ const ParticipantRow = ({
 };
 
 export default function Leaderboard() {
-  const { scores, calculateTotalScore, currentJudgeId } = useScoresStore();
+  const { scores, calculateTotalScore, currentUser } = useScoresStore();
   const [rankedParticipants, setRankedParticipants] = useState<
     RankedParticipant[]
   >([]);
@@ -139,23 +140,28 @@ export default function Leaderboard() {
 
   useEffect(() => {
     setIsClient(true);
-    if (!currentJudgeId) {
+    if (!currentUser) {
       router.push('/login');
     }
-  }, [currentJudgeId, router]);
+  }, [currentUser, router]);
 
   useEffect(() => {
-    if (isClient && currentJudgeId) {
+    if (isClient && currentUser) {
       const calculatedRanks = participants
         .map((participant) => {
-          const judgeScores = JUDGES.map((judgeId) => ({
-            judgeId,
+          const relevantJudges = participant.eventType === 'Canto' ? CANTO_JUDGES : BAILE_JUDGES;
+
+          const judgeScores = relevantJudges.map((judgeId) => ({
+            judgeId: users.find(u => u.id === judgeId)?.username || judgeId,
             score: calculateTotalScore(judgeId, participant.id, criteria),
           }));
+          
+          const validScores = judgeScores.filter(s => s.score > 0);
 
           const avgScore =
-            judgeScores.reduce((acc, s) => acc + s.score, 0) /
-            (judgeScores.length || 1);
+            validScores.length > 0 
+            ? validScores.reduce((acc, s) => acc + s.score, 0) / validScores.length 
+            : 0;
 
           return {
             ...participant,
@@ -165,7 +171,7 @@ export default function Leaderboard() {
         })
         .sort((a, b) => b.totalScore - a.totalScore)
         .map((p, index, all) => {
-          const categoryPeers = all.filter(
+           const categoryPeers = all.filter(
             (x) => x.category === p.category && x.eventType === p.eventType
           );
           const categoryRank =
@@ -186,25 +192,26 @@ export default function Leaderboard() {
 
       setRankedParticipants(calculatedRanks as RankedParticipant[]);
     }
-  }, [scores, calculateTotalScore, isClient, currentJudgeId]);
+  }, [scores, calculateTotalScore, isClient, currentUser]);
 
   const renderLeaderboardTable = (
     eventType: 'Canto' | 'Baile',
     category: 'A' | 'B'
   ) => {
-    if (!currentJudgeId) return null;
+    if (!currentUser) return null;
     const categoryParticipants = rankedParticipants.filter(
       (p) => p.eventType === eventType && p.category === category
     );
 
-    const isAnyScoreRegistered = Object.values(scores).some(
-      (judgeScores) => Object.keys(judgeScores).length > 0
+    const relevantJudges = eventType === 'Canto' ? CANTO_JUDGES : BAILE_JUDGES;
+    const isAnyScoreRegistered = Object.keys(scores).some(
+      (judgeId) => relevantJudges.includes(judgeId) && Object.keys(scores[judgeId]).length > 0
     );
 
     if (!isAnyScoreRegistered) {
       return (
         <div className="text-center py-12 text-muted-foreground">
-          <p className="text-lg">Aún no se han registrado calificaciones.</p>
+          <p className="text-lg">Aún no se han registrado calificaciones para {eventType}.</p>
           <p>Ve a la página de participantes para empezar a evaluar.</p>
         </div>
       );
@@ -248,17 +255,22 @@ export default function Leaderboard() {
     );
   };
 
-  if (!isClient || !currentJudgeId) {
+  if (!isClient || !currentUser) {
     return null;
   }
+  
+  const canSeeCanto = currentUser.role === 'ADMIN' || currentUser.role === 'CANTO';
+  const canSeeBaile = currentUser.role === 'ADMIN' || currentUser.role === 'BAILE';
+  const defaultTab = canSeeCanto ? 'canto' : 'baile';
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <Tabs defaultValue="canto" className="w-full">
+       {currentUser.role === 'ADMIN' ? (
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-6">
-            <TabsTrigger value="canto">Canto</TabsTrigger>
-            <TabsTrigger value="baile">Baile</TabsTrigger>
+            <TabsTrigger value="canto"><Mic className="mr-2"/>Canto</TabsTrigger>
+            <TabsTrigger value="baile"><Clapperboard className="mr-2"/>Baile</TabsTrigger>
           </TabsList>
           <TabsContent value="canto">
             {renderCategoryTabs('Canto')}
@@ -267,6 +279,12 @@ export default function Leaderboard() {
             {renderCategoryTabs('Baile')}
           </TabsContent>
         </Tabs>
+         ) : (
+          <>
+            {canSeeCanto && renderCategoryTabs('Canto')}
+            {canSeeBaile && renderCategoryTabs('Baile')}
+          </>
+       )}
       </CardContent>
     </Card>
   );
