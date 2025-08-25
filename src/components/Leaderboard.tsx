@@ -62,6 +62,7 @@ interface RankedParticipant {
 }
 
 const calculateTotalScore = (scores: ScoreData, criteria: Criterion[]): number => {
+  if (!scores) return 0;
   const totalScore = criteria.reduce((total, criterion) => {
     const score = scores[criterion.id] || 0;
     return total + (score * (criterion.weight / 100));
@@ -148,6 +149,7 @@ export default function Leaderboard() {
   }, [currentUser, router]);
 
   useEffect(() => {
+    if (!db) return;
     const q = query(collection(db, "scores"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const scoresData = querySnapshot.docs.map(doc => ({
@@ -161,11 +163,21 @@ export default function Leaderboard() {
   }, []);
 
   const rankedParticipants = useMemo(() => {
-    return participants
+    // Group scores by participant ID
+    const scoresByParticipant = allScores.reduce((acc, scoreDoc) => {
+      const participantId = scoreDoc.id.split('_')[1];
+      if (!acc[participantId]) {
+        acc[participantId] = [];
+      }
+      acc[participantId].push(scoreDoc);
+      return acc;
+    }, {} as Record<string, FirestoreScoreDoc[]>);
+
+    const ranked = participants
       .map((participant) => {
-        const participantScores = allScores.filter(s => s.id.endsWith(`_${participant.id}`));
+        const participantScoreDocs = scoresByParticipant[participant.id] || [];
         
-        const judgeScores = participantScores.map(s => {
+        const judgeScores = participantScoreDocs.map(s => {
           const judgeId = s.id.split('_')[0];
           const judgeUsername = users.find(u => u.id === judgeId)?.username || 'Desconocido';
           return {
@@ -174,29 +186,31 @@ export default function Leaderboard() {
           };
         });
 
-        const avgScore = judgeScores.length > 0
+        const totalAverageScore = judgeScores.length > 0
           ? judgeScores.reduce((acc, s) => acc + s.score, 0) / judgeScores.length
           : 0;
 
         return {
           ...participant,
-          totalScore: avgScore,
+          totalScore: totalAverageScore,
           judgeScores,
         };
       })
-      .sort((a, b) => b.totalScore - a.totalScore)
-      .map((p, index, all) => {
-         const categoryPeers = all.filter(x => x.category === p.category && x.eventType === p.eventType);
-         const categoryRank = categoryPeers.sort((a, b) => b.totalScore - a.totalScore).findIndex((x) => x.id === p.id) + 1;
-         return {
-            id: p.id,
-            name: p.name,
-            totalScore: p.totalScore,
-            category: p.category,
-            eventType: p.eventType,
-            rank: categoryRank,
-            judgeScores: p.judgeScores,
-         };
+      .sort((a, b) => b.totalScore - a.totalScore);
+
+      // Rank within each category and event type
+      return ranked.map((p) => {
+        const categoryPeers = ranked.filter(x => x.category === p.category && x.eventType === p.eventType);
+        const rank = categoryPeers.findIndex(x => x.id === p.id) + 1;
+        return {
+          id: p.id,
+          name: p.name,
+          totalScore: p.totalScore,
+          category: p.category,
+          eventType: p.eventType,
+          rank: rank,
+          judgeScores: p.judgeScores,
+        };
       }) as RankedParticipant[];
   }, [allScores]);
 
@@ -225,13 +239,13 @@ export default function Leaderboard() {
     
     const categoryParticipants = rankedParticipants.filter(p => p.eventType === eventType && p.category === category);
     
-    const isAnyScoreRegistered = allScores.some(s => {
+    const isAnyScoreRegisteredForEvent = allScores.some(s => {
         const pId = s.id.split('_')[1];
         const p = participants.find(p => p.id === pId);
         return p?.eventType === eventType;
     });
 
-    if (!isAnyScoreRegistered) {
+    if (!isAnyScoreRegisteredForEvent) {
       return (
         <div className="text-center py-12 text-muted-foreground">
           <p className="text-lg">Aún no se han registrado calificaciones para {eventType}.</p>
