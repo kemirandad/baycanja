@@ -39,6 +39,8 @@ export default function Home() {
     'orchestra conductor',
     'ballet dancers',
     'dj mixing',
+    'gospel singer',
+    'acoustic guitar',
   ];
 
   const participantsA = participants.filter((p) => p.category === 'A');

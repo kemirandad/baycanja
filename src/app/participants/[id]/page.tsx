@@ -28,6 +28,12 @@ export default function ParticipantPage({ params }: { params: { id: string } }) 
     'magician stage',
     'public speaking',
     'live painting',
+    'stand up comedy',
+    'orchestra conductor',
+    'ballet dancers',
+    'dj mixing',
+    'gospel singer',
+    'acoustic guitar',
   ];
   const participantIndex = participants.findIndex((p) => p.id === params.id);
   const hint = photoHints[participantIndex % photoHints.length] || 'person';
