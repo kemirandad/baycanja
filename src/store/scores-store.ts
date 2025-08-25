@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Criterion, User } from '@/lib/types';
+import type { Criterion, Participant, User } from '@/lib/types';
+import { participants } from '@/lib/data';
 
 type StoredUser = Omit<User, 'password'>;
 
@@ -31,8 +32,8 @@ type ScoresState = {
     participantId: string,
     criteria: Criterion[]
   ) => number;
-  resetScores: (judgeId: string) => void;
   hasScores: (judgeId: string, participantId: string) => boolean;
+  resetScoresForEvent: (eventType: 'Canto' | 'Baile') => void;
 };
 
 export const useScoresStore = create<ScoresState>()(
@@ -68,26 +69,32 @@ export const useScoresStore = create<ScoresState>()(
         
         return totalScore * 10;
       },
-      resetScores: (judgeId) => {
-        if (
-          typeof window !== 'undefined' &&
-          window.confirm(
-            `¿Estás seguro de que quieres borrar las puntuaciones para ${judgeId}? Esta acción no se puede deshacer.`
-          )
-        ) {
-          set((state) => {
-            const newScores = { ...state.scores };
-            delete newScores[judgeId];
-            return { scores: newScores };
-          });
-        }
-      },
       hasScores: (judgeId, participantId) => {
-        return !!get().scores[judgeId]?.[participantId];
-      }
+        const scores = get().scores[judgeId]?.[participantId];
+        return !!scores && Object.keys(scores).length > 0;
+      },
+      resetScoresForEvent: (eventType) => {
+        set(state => {
+          const newScores = { ...state.scores };
+          const participantsToReset = participants.filter(p => p.eventType === eventType).map(p => p.id);
+
+          for (const judgeId in newScores) {
+            for (const participantId of participantsToReset) {
+              if (newScores[judgeId]?.[participantId]) {
+                delete newScores[judgeId][participantId];
+              }
+            }
+            if (Object.keys(newScores[judgeId]).length === 0) {
+              delete newScores[judgeId];
+            }
+          }
+          
+          return { scores: newScores };
+        });
+      },
     }),
     {
-      name: 'baycanja-scores-storage-v4-roles',
+      name: 'baycanja-scores-storage-v5-roles-reset',
       storage: createJSONStorage(() => localStorage),
     }
   )

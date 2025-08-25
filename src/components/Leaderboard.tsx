@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Trophy, Medal, Award, Mic, Clapperboard } from 'lucide-react';
+import { Trophy, Medal, Award, Mic, Clapperboard, RotateCcw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
 import {
@@ -29,6 +29,17 @@ import { Button } from './ui/button';
 import { ChevronDown } from 'lucide-react';
 import React from 'react';
 import type { Participant } from '@/lib/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface RankedParticipant {
   id: string;
@@ -131,7 +142,7 @@ const ParticipantRow = ({
 };
 
 export default function Leaderboard() {
-  const { scores, calculateTotalScore, currentUser } = useScoresStore();
+  const { scores, calculateTotalScore, currentUser, resetScoresForEvent } = useScoresStore();
   const [rankedParticipants, setRankedParticipants] = useState<
     RankedParticipant[]
   >([]);
@@ -205,7 +216,9 @@ export default function Leaderboard() {
 
     const relevantJudges = eventType === 'Canto' ? CANTO_JUDGES : BAILE_JUDGES;
     const isAnyScoreRegistered = Object.keys(scores).some(
-      (judgeId) => relevantJudges.includes(judgeId) && Object.keys(scores[judgeId]).length > 0
+      (judgeId) => relevantJudges.includes(judgeId) && Object.keys(scores[judgeId]).some(
+        pId => participants.find(p => p.id === pId)?.eventType === eventType
+      )
     );
 
     if (!isAnyScoreRegistered) {
@@ -251,6 +264,30 @@ export default function Leaderboard() {
         <TabsContent value="categoryB">
           {renderLeaderboardTable(eventType, 'B')}
         </TabsContent>
+        {currentUser?.role === 'ADMIN' && (
+           <div className="mt-8 text-center">
+           <AlertDialog>
+             <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Reiniciar Puntuaciones de {eventType}
+                </Button>
+             </AlertDialogTrigger>
+             <AlertDialogContent>
+               <AlertDialogHeader>
+                 <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                 <AlertDialogDescription>
+                    Esta acción borrará permanentemente todas las puntuaciones para el evento de {eventType}. Esta acción no se puede deshacer.
+                 </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                 <AlertDialogAction onClick={() => resetScoresForEvent(eventType)}>Continuar</AlertDialogAction>
+               </AlertDialogFooter>
+             </AlertDialogContent>
+           </AlertDialog>
+         </div>
+        )}
       </Tabs>
     );
   };
