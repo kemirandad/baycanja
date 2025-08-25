@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Trophy, Medal, Award, Mic, Clapperboard, RotateCcw } from 'lucide-react';
+import { Trophy, Medal, Award, Mic, Clapperboard, RotateCcw, ChevronDown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
 import {
@@ -26,9 +26,8 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { Button } from './ui/button';
-import { ChevronDown } from 'lucide-react';
 import React from 'react';
-import type { Participant } from '@/lib/types';
+import type { Participant, Criterion } from '@/lib/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +39,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { collection, onSnapshot, query, where, writeBatch, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+interface ScoreData {
+  [criterionId: string]: number;
+}
+
+interface FirestoreScoreDoc {
+  id: string; // judgeId_participantId
+  scores: ScoreData;
+}
 
 interface RankedParticipant {
   id: string;
@@ -48,11 +58,16 @@ interface RankedParticipant {
   rank: number;
   category: 'A' | 'B';
   eventType: 'Canto' | 'Baile';
-  judgeScores: { judgeId: string; score: number }[];
+  judgeScores: { judgeUsername: string; score: number }[];
 }
 
-const CANTO_JUDGES = users.filter(u => u.role === 'CANTO' || u.role === 'ADMIN').map(u => u.id);
-const BAILE_JUDGES = users.filter(u => u.role === 'BAILE' || u.role === 'ADMIN').map(u => u.id);
+const calculateTotalScore = (scores: ScoreData, criteria: Criterion[]): number => {
+  const totalScore = criteria.reduce((total, criterion) => {
+    const score = scores[criterion.id] || 0;
+    return total + (score * (criterion.weight / 100));
+  }, 0);
+  return totalScore * 10;
+};
 
 const DetailsRow = ({ participant }: { participant: RankedParticipant }) => {
   return (
@@ -66,23 +81,14 @@ const DetailsRow = ({ participant }: { participant: RankedParticipant }) => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={participant.judgeScores.filter(s => s.score > 0)}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="judgeId" />
+                <XAxis dataKey="judgeUsername" />
                 <YAxis domain={[0, 100]} />
-                <Tooltip formatter={(value: number, name, props) => [value.toFixed(2), "Puntaje"]}/>
+                <Tooltip formatter={(value: number) => [value.toFixed(2), "Puntaje"]}/>
                 <Legend />
-                <Bar
-                  dataKey="score"
-                  name="Puntaje"
-                  fill="hsl(var(--primary))"
-                />
+                <Bar dataKey="score" name="Puntaje" fill="hsl(var(--primary))" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -92,24 +98,16 @@ const DetailsRow = ({ participant }: { participant: RankedParticipant }) => {
   );
 };
 
-const ParticipantRow = ({
-  participant,
-}: {
-  participant: RankedParticipant;
-}) => {
+const ParticipantRow = ({ participant }: { participant: RankedParticipant }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const getPodiumIcon = (rank: number) => {
     const props = { className: 'h-6 w-6' };
     switch (rank) {
-      case 1:
-        return <Trophy {...props} color="#FFD700" />;
-      case 2:
-        return <Medal {...props} color="#C0C0C0" />;
-      case 3:
-        return <Award {...props} color="#CD7F32" />;
-      default:
-        return <span className="font-mono text-lg">{rank}</span>;
+      case 1: return <Trophy {...props} color="#FFD700" />;
+      case 2: return <Medal {...props} color="#C0C0C0" />;
+      case 3: return <Award {...props} color="#CD7F32" />;
+      default: return <span className="font-mono text-lg">{rank}</span>;
     }
   };
 
@@ -127,12 +125,7 @@ const ParticipantRow = ({
         </TableCell>
         <TableCell className="text-center">
           <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)}>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform ${
-                isOpen ? 'rotate-180' : ''
-              }`}
-            />
-            <span className="sr-only">Ver detalles</span>
+            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
           </Button>
         </TableCell>
       </TableRow>
@@ -142,10 +135,8 @@ const ParticipantRow = ({
 };
 
 export default function Leaderboard() {
-  const { scores, calculateTotalScore, currentUser, resetScoresForEvent } = useScoresStore();
-  const [rankedParticipants, setRankedParticipants] = useState<
-    RankedParticipant[]
-  >([]);
+  const { currentUser } = useScoresStore();
+  const [allScores, setAllScores] = useState<FirestoreScoreDoc[]>([]);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
@@ -157,40 +148,47 @@ export default function Leaderboard() {
   }, [currentUser, router]);
 
   useEffect(() => {
-    if (isClient && currentUser) {
-      const calculatedRanks = participants
-        .map((participant) => {
-          const relevantJudges = participant.eventType === 'Canto' ? CANTO_JUDGES : BAILE_JUDGES;
+    const q = query(collection(db, "scores"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const scoresData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        scores: doc.data() as ScoreData,
+      }));
+      setAllScores(scoresData);
+    });
 
-          const judgeScores = relevantJudges.map((judgeId) => ({
-            judgeId: users.find(u => u.id === judgeId)?.username || judgeId,
-            score: calculateTotalScore(judgeId, participant.id, criteria),
-          }));
-          
-          const validScores = judgeScores.filter(s => s.score > 0);
+    return () => unsubscribe();
+  }, []);
 
-          const avgScore =
-            validScores.length > 0 
-            ? validScores.reduce((acc, s) => acc + s.score, 0) / validScores.length 
-            : 0;
-
+  const rankedParticipants = useMemo(() => {
+    return participants
+      .map((participant) => {
+        const participantScores = allScores.filter(s => s.id.endsWith(`_${participant.id}`));
+        
+        const judgeScores = participantScores.map(s => {
+          const judgeId = s.id.split('_')[0];
+          const judgeUsername = users.find(u => u.id === judgeId)?.username || 'Desconocido';
           return {
-            ...participant,
-            totalScore: avgScore,
-            judgeScores,
+            judgeUsername,
+            score: calculateTotalScore(s.scores, criteria)
           };
-        })
-        .sort((a, b) => b.totalScore - a.totalScore)
-        .map((p, index, all) => {
-           const categoryPeers = all.filter(
-            (x) => x.category === p.category && x.eventType === p.eventType
-          );
-          const categoryRank =
-            categoryPeers
-              .sort((a, b) => b.totalScore - a.totalScore)
-              .findIndex((x) => x.id === p.id) + 1;
+        });
 
-          return {
+        const avgScore = judgeScores.length > 0
+          ? judgeScores.reduce((acc, s) => acc + s.score, 0) / judgeScores.length
+          : 0;
+
+        return {
+          ...participant,
+          totalScore: avgScore,
+          judgeScores,
+        };
+      })
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .map((p, index, all) => {
+         const categoryPeers = all.filter(x => x.category === p.category && x.eventType === p.eventType);
+         const categoryRank = categoryPeers.sort((a, b) => b.totalScore - a.totalScore).findIndex((x) => x.id === p.id) + 1;
+         return {
             id: p.id,
             name: p.name,
             totalScore: p.totalScore,
@@ -198,28 +196,40 @@ export default function Leaderboard() {
             eventType: p.eventType,
             rank: categoryRank,
             judgeScores: p.judgeScores,
-          };
-        });
+         };
+      }) as RankedParticipant[];
+  }, [allScores]);
 
-      setRankedParticipants(calculatedRanks as RankedParticipant[]);
-    }
-  }, [scores, calculateTotalScore, isClient, currentUser]);
+  const resetScoresForEvent = async (eventType: 'Canto' | 'Baile') => {
+    const participantIdsToReset = participants
+      .filter(p => p.eventType === eventType)
+      .map(p => p.id);
 
-  const renderLeaderboardTable = (
-    eventType: 'Canto' | 'Baile',
-    category: 'A' | 'B'
-  ) => {
+    const scoresCollection = collection(db, "scores");
+    const q = query(scoresCollection);
+    const querySnapshot = await getDocs(q);
+
+    const batch = writeBatch(db);
+    querySnapshot.forEach(doc => {
+      const participantId = doc.id.split('_')[1];
+      if (participantIdsToReset.includes(participantId)) {
+        batch.delete(doc.ref);
+      }
+    });
+
+    await batch.commit();
+  };
+
+  const renderLeaderboardTable = (eventType: 'Canto' | 'Baile', category: 'A' | 'B') => {
     if (!currentUser) return null;
-    const categoryParticipants = rankedParticipants.filter(
-      (p) => p.eventType === eventType && p.category === category
-    );
-
-    const relevantJudges = eventType === 'Canto' ? CANTO_JUDGES : BAILE_JUDGES;
-    const isAnyScoreRegistered = Object.keys(scores).some(
-      (judgeId) => relevantJudges.includes(judgeId) && Object.keys(scores[judgeId]).some(
-        pId => participants.find(p => p.id === pId)?.eventType === eventType
-      )
-    );
+    
+    const categoryParticipants = rankedParticipants.filter(p => p.eventType === eventType && p.category === category);
+    
+    const isAnyScoreRegistered = allScores.some(s => {
+        const pId = s.id.split('_')[1];
+        const p = participants.find(p => p.id === pId);
+        return p?.eventType === eventType;
+    });
 
     if (!isAnyScoreRegistered) {
       return (
@@ -243,9 +253,8 @@ export default function Leaderboard() {
         <TableBody>
           {categoryParticipants
             .sort((a, b) => a.rank - b.rank)
-            .map((p) => (
-              <ParticipantRow key={p.id} participant={p} />
-            ))}
+            .map((p) => <ParticipantRow key={p.id} participant={p} />
+          )}
         </TableBody>
       </Table>
     );

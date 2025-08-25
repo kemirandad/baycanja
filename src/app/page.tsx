@@ -16,13 +16,34 @@ import { ArrowRight, Mic, Clapperboard, CheckCircle2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
 import { useScoresStore } from '@/store/scores-store';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Participant } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+const useHasScores = (judgeId: string | undefined, participantId: string) => {
+  const [hasScore, setHasScore] = useState(false);
+
+  useEffect(() => {
+    if (!judgeId) {
+      setHasScore(false);
+      return;
+    }
+    const checkScore = async () => {
+      const docRef = doc(db, 'scores', `${judgeId}_${participantId}`);
+      const docSnap = await getDoc(docRef);
+      setHasScore(docSnap.exists());
+    };
+    checkScore();
+  }, [judgeId, participantId]);
+
+  return hasScore;
+};
 
 export default function Home() {
   const router = useRouter();
-  const { currentUser, hasScores } = useScoresStore();
+  const { currentUser } = useScoresStore();
 
   useEffect(() => {
     if (!currentUser) {
@@ -47,12 +68,11 @@ export default function Home() {
     return participants.filter(p => p.eventType === eventType);
   }, [currentUser]);
 
-  const renderParticipantCard = (participant: Participant, index: number) => {
-    const isGraded = currentUser ? hasScores(currentUser.id, participant.id) : false;
+  const ParticipantCard = ({ participant, index }: { participant: Participant, index: number }) => {
+    const isGraded = useHasScores(currentUser?.id, participant.id);
     
     return (
       <Card
-        key={participant.id}
         className={cn(
           "flex flex-col overflow-hidden transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl bg-card/80 backdrop-blur-sm",
           isGraded && "border-green-500 border-2"
@@ -108,12 +128,12 @@ export default function Home() {
         </TabsList>
         <TabsContent value="categoryA">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {participantsA.map((p, i) => renderParticipantCard(p, baseIndex + i))}
+            {participantsA.map((p, i) => <ParticipantCard key={p.id} participant={p} index={baseIndex + i} />)}
           </div>
         </TabsContent>
         <TabsContent value="categoryB">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {participantsB.map((p, i) => renderParticipantCard(p, baseIndex + 6 + i))}
+            {participantsB.map((p, i) => <ParticipantCard key={p.id} participant={p} index={baseIndex + 6 + i} />)}
           </div>
         </TabsContent>
       </Tabs>

@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { criteria } from '@/lib/data';
+import { criteria, participants as staticParticipants } from '@/lib/data';
 import type { Participant } from '@/lib/types';
 import { useScoresStore } from '@/store/scores-store';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,8 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useRouter } from 'next/navigation';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const formSchemaDefinition = criteria.reduce((acc, criterion) => {
   acc[criterion.id] = z.coerce.number().min(0).max(10);
@@ -39,17 +41,27 @@ const formSchema = z.object(formSchemaDefinition);
 
 type JudgingFormValues = z.infer<typeof formSchema>;
 
+const saveScoresToFirestore = async (judgeId: string, participantId: string, scores: JudgingFormValues) => {
+  const docRef = doc(db, 'scores', `${judgeId}_${participantId}`);
+  await setDoc(docRef, scores);
+};
+
+const getScoresFromFirestore = async (judgeId: string, participantId: string) => {
+  const docRef = doc(db, 'scores', `${judgeId}_${participantId}`);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return docSnap.data() as JudgingFormValues;
+  }
+  return null;
+};
+
 export default function JudgingPanel({
   participant,
 }: {
   participant: Participant;
 }) {
   const router = useRouter();
-  const {
-    setScore,
-    getScoresForParticipant,
-    currentUser,
-  } = useScoresStore();
+  const { currentUser } = useScoresStore();
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
 
@@ -60,10 +72,8 @@ export default function JudgingPanel({
   const judgeId = currentUser?.id;
   const canJudge = currentUser && (currentUser.role === 'ADMIN' || (currentUser.role === 'CANTO' && participant.eventType === 'Canto') || (currentUser.role === 'BAILE' && participant.eventType === 'Baile'));
 
-  const currentScores = judgeId ? getScoresForParticipant(judgeId, participant.id) : {};
-
   const defaultValues = criteria.reduce((acc, criterion) => {
-    acc[criterion.id] = currentScores[criterion.id] ?? 0;
+    acc[criterion.id] = 0;
     return acc;
   }, {} as Record<string, number>);
 
@@ -74,25 +84,22 @@ export default function JudgingPanel({
 
   useEffect(() => {
     if (judgeId) {
-      const scores = getScoresForParticipant(judgeId, participant.id);
-      const newDefaultValues = criteria.reduce((acc, c) => {
-        acc[c.id] = scores[c.id] ?? 0;
-        return acc;
-      }, {} as Record<string, number>);
-      form.reset(newDefaultValues);
+      getScoresFromFirestore(judgeId, participant.id).then(scores => {
+        if (scores) {
+          form.reset(scores);
+        }
+      });
     }
-  }, [judgeId, participant.id, getScoresForParticipant, form]);
+  }, [judgeId, participant.id, form]);
 
-  function onSubmit(data: JudgingFormValues) {
+  async function onSubmit(data: JudgingFormValues) {
     if (!judgeId || !canJudge) return;
 
-    Object.entries(data).forEach(([criterionId, score]) => {
-      setScore(judgeId, participant.id, criterionId, score);
-    });
+    await saveScoresToFirestore(judgeId, participant.id, data);
 
     toast({
       title: 'Calificación Guardada',
-      description: `La calificación de ${currentUser.username} para ${participant.name} ha sido guardada.`,
+      description: `La calificación de ${currentUser.username} para ${participant.name} ha sido guardada en la base de datos.`,
       action: <CheckCircle className="text-green-500" />,
     });
     
