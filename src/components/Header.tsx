@@ -44,6 +44,19 @@ export function Header() {
     return null;
   }
 
+  if (pathname === '/public-results') {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
+        <div className="container flex h-20 items-center justify-center">
+          <Link href="/login" className="flex items-center space-x-3">
+            <Logo />
+            <span className="text-2xl font-bold tracking-tight">BAYCANJA</span>
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
       <div className="container flex h-20 items-center">
