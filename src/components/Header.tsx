@@ -40,6 +40,14 @@ export function Header() {
     { href: '/public-results', label: 'Vista Pública', icon: Tv },
   ];
   
+  if (!isClient) {
+    return (
+       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
+        <div className="container flex h-20 items-center"></div>
+      </header>
+    )
+  }
+
   if (pathname === '/login') {
     return null;
   }
@@ -84,7 +92,7 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex flex-1 items-center justify-end gap-4">
-          {isClient && currentUser && (
+          {currentUser && (
             <>
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5 text-muted-foreground" />
@@ -113,7 +121,7 @@ export function Header() {
               </Link>
             </Button>
           ))}
-           {isClient && currentUser && (
+           {currentUser && (
             <Button variant="ghost" size="icon" onClick={handleLogout} className="ml-2">
               <LogOut className="h-5 w-5" />
             </Button>
