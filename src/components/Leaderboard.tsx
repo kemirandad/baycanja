@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -39,7 +40,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { collection, onSnapshot, query, writeBatch, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, query, writeBatch, getDocs, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 interface ScoreData {
@@ -163,7 +164,6 @@ export default function Leaderboard() {
   }, []);
 
   const rankedParticipants = useMemo(() => {
-    // Group scores by participant ID
     const scoresByParticipant = allScores.reduce((acc, scoreDoc) => {
       const participantId = scoreDoc.id.split('_')[1];
       if (!acc[participantId]) {
@@ -172,65 +172,86 @@ export default function Leaderboard() {
       acc[participantId].push(scoreDoc);
       return acc;
     }, {} as Record<string, FirestoreScoreDoc[]>);
-
-    const ranked = participants
-      .map((participant) => {
-        const participantScoreDocs = scoresByParticipant[participant.id] || [];
-        
-        const judgeScores = participantScoreDocs.map(s => {
-          const judgeId = s.id.split('_')[0];
-          const judgeUsername = users.find(u => u.id === judgeId)?.username || 'Desconocido';
-          return {
-            judgeUsername,
-            score: calculateTotalScore(s.scores, criteria)
-          };
-        });
-
-        const totalAverageScore = judgeScores.length > 0
-          ? judgeScores.reduce((acc, s) => acc + s.score, 0) / judgeScores.length
-          : 0;
-
+  
+    const averagedParticipants = participants.map((participant) => {
+      const participantScoreDocs = scoresByParticipant[participant.id] || [];
+      const judgeScores = participantScoreDocs.map(s => {
+        const judgeId = s.id.split('_')[0];
+        const judgeUsername = users.find(u => u.id === judgeId)?.username || 'Desconocido';
         return {
-          ...participant,
-          totalScore: totalAverageScore,
-          judgeScores,
+          judgeUsername,
+          score: calculateTotalScore(s.scores, criteria),
         };
-      })
-      .sort((a, b) => b.totalScore - a.totalScore);
-
-      // Rank within each category and event type
-      return ranked.map((p) => {
-        const categoryPeers = ranked.filter(x => x.category === p.category && x.eventType === p.eventType);
-        const rank = categoryPeers.findIndex(x => x.id === p.id) + 1;
-        return {
-          id: p.id,
-          name: p.name,
-          totalScore: p.totalScore,
-          category: p.category,
-          eventType: p.eventType,
-          rank: rank,
-          judgeScores: p.judgeScores,
-        };
-      }) as RankedParticipant[];
+      });
+  
+      const totalAverageScore = judgeScores.length > 0
+        ? judgeScores.reduce((acc, s) => acc + s.score, 0) / judgeScores.length
+        : 0;
+  
+      return {
+        ...participant,
+        totalScore: totalAverageScore,
+        judgeScores,
+      };
+    });
+  
+    // Function to rank a list of participants
+    const rankParticipants = (list: typeof averagedParticipants) => {
+      const sorted = [...list].sort((a, b) => b.totalScore - a.totalScore);
+      return sorted.map((p, index) => ({
+        ...p,
+        rank: index + 1,
+      }));
+    };
+  
+    // Filter and rank for each group
+    const cantoA = rankParticipants(averagedParticipants.filter(p => p.eventType === 'Canto' && p.category === 'A'));
+    const cantoB = rankParticipants(averagedParticipants.filter(p => p.eventType === 'Canto' && p.category === 'B'));
+    const baileA = rankParticipants(averagedParticipants.filter(p => p.eventType === 'Baile' && p.category === 'A'));
+    const baileB = rankParticipants(averagedParticipants.filter(p => p.eventType === 'Baile' && p.category === 'B'));
+  
+    return [...cantoA, ...cantoB, ...baileA, ...baileB] as RankedParticipant[];
   }, [allScores]);
 
   const resetScoresForEvent = async (eventType: 'Canto' | 'Baile') => {
     const participantIdsToReset = participants
       .filter(p => p.eventType === eventType)
       .map(p => p.id);
-
+  
+    if (participantIdsToReset.length === 0) return;
+  
     const scoresCollection = collection(db, "scores");
-    const q = query(scoresCollection);
-    const querySnapshot = await getDocs(q);
-
     const batch = writeBatch(db);
-    querySnapshot.forEach(doc => {
+  
+    // Firestore `where in` query supports up to 30 items. 
+    // If you have more participants, this needs to be chunked.
+    // Assuming less than 30 participants per event type for now.
+    const participantIds = allScores.map(s => s.id.split('_')[1]);
+    const relevantParticipantIds = participantIds.filter(id => participantIdsToReset.includes(id));
+  
+    if (relevantParticipantIds.length > 0) {
+      const scoresToDeleteQuery = query(scoresCollection, where('participantId', 'in', relevantParticipantIds));
+      const snapshot = await getDocs(scoresToDeleteQuery);
+      snapshot.docs.forEach(doc => {
+        // This is a safety check, but the query should handle it.
+        const pId = doc.id.split('_')[1];
+        const pData = participants.find(p => p.id === pId);
+        if (pData?.eventType === eventType) {
+            batch.delete(doc.ref);
+        }
+      });
+    }
+  
+    // Legacy check for documents without participantId field (based on original implementation)
+    const allDocsSnapshot = await getDocs(scoresCollection);
+    allDocsSnapshot.forEach(doc => {
       const participantId = doc.id.split('_')[1];
-      if (participantIdsToReset.includes(participantId)) {
+      if (participantIdsToReset.includes(participantId) && !doc.data().participantId) {
         batch.delete(doc.ref);
       }
     });
-
+  
+  
     await batch.commit();
   };
 
