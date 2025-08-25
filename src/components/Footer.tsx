@@ -20,12 +20,12 @@ export function Footer() {
   }
   return (
     <footer className="bg-secondary text-secondary-foreground mt-16">
-      <div className="container py-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+      <div className="container py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center space-x-2">
           <Logo />
           <span className="font-bold text-lg">BAYCANJA</span>
         </div>
-        <div className="flex flex-col items-center sm:items-end">
+        <div className="flex flex-col items-center sm:items-end text-center sm:text-right">
           <p className="text-sm">
             &copy; {new Date().getFullYear()} Evento BAYCANJA. Todos los derechos reservados.
           </p>
