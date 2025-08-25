@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { criteria, participants as staticParticipants } from '@/lib/data';
+import { criteria } from '@/lib/data';
 import type { Participant } from '@/lib/types';
 import { useScoresStore } from '@/store/scores-store';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, Eye, Lock } from 'lucide-react';
+import { CheckCircle, Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';

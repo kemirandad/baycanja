@@ -39,7 +39,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { collection, onSnapshot, query, where, writeBatch, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, query, writeBatch, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 interface ScoreData {
