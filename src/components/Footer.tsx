@@ -20,7 +20,7 @@ export function Footer() {
   }
   return (
     <footer className="bg-secondary text-secondary-foreground mt-16">
-      <div className="container py-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+      <div className="container py-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
         <div className="flex items-center space-x-2">
           <Logo />
           <span className="font-bold text-lg">BAYCANJA</span>
