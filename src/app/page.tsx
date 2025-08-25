@@ -12,16 +12,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mic, Clapperboard } from 'lucide-react';
+import { ArrowRight, Mic, Clapperboard, CheckCircle2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
 import { useScoresStore } from '@/store/scores-store';
 import { useEffect, useMemo } from 'react';
 import type { Participant } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   const router = useRouter();
-  const { currentUser } = useScoresStore();
+  const { currentUser, hasScores } = useScoresStore();
 
   useEffect(() => {
     if (!currentUser) {
@@ -46,37 +47,49 @@ export default function Home() {
     return participants.filter(p => p.eventType === eventType);
   }, [currentUser]);
 
-  const renderParticipantCard = (participant: Participant, index: number) => (
-    <Card
-      key={participant.id}
-      className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl bg-card/80 backdrop-blur-sm"
-    >
-      <CardHeader className="p-0">
-        <div className="aspect-video relative">
-          <Image
-            src={participant.photoUrl}
-            alt={`Foto de ${participant.name}`}
-            fill
-            className="object-cover"
-            data-ai-hint={photoHints[index % photoHints.length]}
-          />
-        </div>
-      </CardHeader>
-      <CardContent className="flex-grow p-6">
-        <CardTitle className="text-2xl font-bold mb-2 text-primary">
-          {participant.name}
-        </CardTitle>
-        <CardDescription>{participant.description}</CardDescription>
-      </CardContent>
-      <CardFooter className="p-6 pt-0">
-        <Button asChild className="w-full">
-          <Link href={`/participants/${participant.id}`}>
-            Evaluar Presentación <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </CardFooter>
-    </Card>
-  );
+  const renderParticipantCard = (participant: Participant, index: number) => {
+    const isGraded = currentUser ? hasScores(currentUser.id, participant.id) : false;
+    
+    return (
+      <Card
+        key={participant.id}
+        className={cn(
+          "flex flex-col overflow-hidden transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl bg-card/80 backdrop-blur-sm",
+          isGraded && "border-green-500 border-2"
+        )}
+      >
+        <CardHeader className="p-0 relative">
+          <div className="aspect-video relative">
+            <Image
+              src={participant.photoUrl}
+              alt={`Foto de ${participant.name}`}
+              fill
+              className="object-cover"
+              data-ai-hint={photoHints[index % photoHints.length]}
+            />
+             {isGraded && (
+              <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1.5 z-10 shadow-lg">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="flex-grow p-6">
+          <CardTitle className="text-2xl font-bold mb-2 text-primary">
+            {participant.name}
+          </CardTitle>
+          <CardDescription>{participant.description}</CardDescription>
+        </CardContent>
+        <CardFooter className="p-6 pt-0">
+          <Button asChild className="w-full">
+            <Link href={`/participants/${participant.id}`}>
+              Evaluar Presentación <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   const renderCategoryTabs = (eventType: 'Canto' | 'Baile') => {
     const participantsA = filteredParticipants.filter((p) => p.eventType === eventType && p.category === 'A');

@@ -28,6 +28,7 @@ import { CheckCircle, Eye, Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useRouter } from 'next/navigation';
 
 const formSchemaDefinition = criteria.reduce((acc, criterion) => {
   acc[criterion.id] = z.coerce.number().min(0).max(10);
@@ -43,6 +44,7 @@ export default function JudgingPanel({
 }: {
   participant: Participant;
 }) {
+  const router = useRouter();
   const {
     setScore,
     getScoresForParticipant,
@@ -93,6 +95,8 @@ export default function JudgingPanel({
       description: `La calificación de ${currentUser.username} para ${participant.name} ha sido guardada.`,
       action: <CheckCircle className="text-green-500" />,
     });
+    
+    router.push('/');
   }
   
   if (!isClient || !currentUser) {
