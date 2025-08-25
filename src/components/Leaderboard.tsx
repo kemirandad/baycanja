@@ -156,68 +156,66 @@ export default function Leaderboard() {
           {categoryParticipants
             .sort((a, b) => a.rank - b.rank)
             .map((p) => (
-              <React.Fragment key={p.id}>
-                <Collapsible asChild>
-                  <>
-                    <TableRow
-                      className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
-                    >
-                      <TableCell className="text-center">
-                        <div className="flex justify-center items-center gap-2">
-                          {getPodiumIcon(p.rank)}
+              <Collapsible asChild key={p.id}>
+                <React.Fragment>
+                  <TableRow
+                    className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
+                  >
+                    <TableCell className="text-center">
+                      <div className="flex justify-center items-center gap-2">
+                        {getPodiumIcon(p.rank)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-lg">{p.name}</TableCell>
+                    <TableCell className="text-right text-lg text-primary font-mono">
+                      {p.totalScore.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <ChevronDown className="h-4 w-4" />
+                          <span className="sr-only">Ver detalles</span>
+                        </Button>
+                      </CollapsibleTrigger>
+                    </TableCell>
+                  </TableRow>
+                  <CollapsibleContent asChild>
+                    <TableRow>
+                      <TableCell colSpan={4} className="p-0">
+                        <div className="p-4 bg-muted/50">
+                          <h4 className="text-lg font-semibold mb-2 text-center">
+                            Desglose de Puntuaciones para {p.name}
+                          </h4>
+                          <div className="h-64 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart
+                                data={p.judgeScores}
+                                margin={{
+                                  top: 5,
+                                  right: 30,
+                                  left: 20,
+                                  bottom: 5,
+                                }}
+                              >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="judgeId" />
+                                <YAxis domain={[0, 100]} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar
+                                  dataKey="score"
+                                  name="Puntaje"
+                                  fill="hsl(var(--primary))"
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-lg">{p.name}</TableCell>
-                      <TableCell className="text-right text-lg text-primary font-mono">
-                        {p.totalScore.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <ChevronDown className="h-4 w-4" />
-                            <span className="sr-only">Ver detalles</span>
-                          </Button>
-                        </CollapsibleTrigger>
-                      </TableCell>
                     </TableRow>
-                    <CollapsibleContent asChild>
-                      <TableRow>
-                        <TableCell colSpan={4} className="p-0">
-                          <div className="p-4 bg-muted/50">
-                            <h4 className="text-lg font-semibold mb-2 text-center">
-                              Desglose de Puntuaciones para {p.name}
-                            </h4>
-                            <div className="h-64 w-full">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                  data={p.judgeScores}
-                                  margin={{
-                                    top: 5,
-                                    right: 30,
-                                    left: 20,
-                                    bottom: 5,
-                                  }}
-                                >
-                                  <CartesianGrid strokeDasharray="3 3" />
-                                  <XAxis dataKey="judgeId" />
-                                  <YAxis domain={[0, 100]} />
-                                  <Tooltip />
-                                  <Legend />
-                                  <Bar
-                                    dataKey="score"
-                                    name="Puntaje"
-                                    fill="hsl(var(--primary))"
-                                  />
-                                </BarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    </CollapsibleContent>
-                  </>
-                </Collapsible>
-              </React.Fragment>
+                  </CollapsibleContent>
+                </React.Fragment>
+              </Collapsible>
             ))}
         </TableBody>
       </Table>
