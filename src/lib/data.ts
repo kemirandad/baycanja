@@ -1,6 +1,7 @@
 import type { Participant, Criterion } from './types';
 
 export const participants: Participant[] = [
+  // Canto - Categoría A
   {
     id: '1',
     name: 'JUAN JOSE PAREJO JIMENEZ',
@@ -9,6 +10,7 @@ export const participants: Participant[] = [
       'JUAN JOSE PAREJO JIMENEZ competirá en la categoría A con una emocionante presentación de canto, demostrando su talento y pasión por la música.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'A',
+    eventType: 'Canto',
   },
   {
     id: '2',
@@ -18,6 +20,7 @@ export const participants: Participant[] = [
       'JARIANA SOFIA APRESA ARROLLO subirá al escenario para ofrecer una interpretación vocal única en la categoría A, buscando cautivar al jurado y al público.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'A',
+    eventType: 'Canto',
   },
   {
     id: '3',
@@ -27,6 +30,7 @@ export const participants: Participant[] = [
       'JAIME ANDRES VILLARETE GALEANO participa en la categoría A, listo para mostrar su desenvolvimiento escénico y su potente voz.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'A',
+    eventType: 'Canto',
   },
   {
     id: '4',
@@ -36,6 +40,7 @@ export const participants: Participant[] = [
       'SAMUEL DAVID NISPERUZA CAICEDO demostrará su habilidad técnica y originalidad en su presentación de canto para la categoría A.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'A',
+    eventType: 'Canto',
   },
   {
     id: '5',
@@ -45,6 +50,7 @@ export const participants: Participant[] = [
       'ANA CASTILLA competirá en la categoría A, compartiendo su talento vocal y carisma en una presentación que promete ser inolvidable.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'A',
+    eventType: 'Canto',
   },
   {
     id: '6',
@@ -54,7 +60,9 @@ export const participants: Participant[] = [
       'ANA LUCIA RUIZ GARCIA cierra la categoría A con una interpretación llena de sentimiento y técnica, esperando dejar una marca en el evento.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'A',
+    eventType: 'Canto',
   },
+  // Canto - Categoría B
   {
     id: '7',
     name: 'ADRIANA YISEL CONTRERAS REINO',
@@ -63,6 +71,7 @@ export const participants: Participant[] = [
       'ADRIANA YISEL CONTRERAS REINO abre la categoría B con su increíble voz, presentando una canción que tocará el corazón de todos.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'B',
+    eventType: 'Canto',
   },
   {
     id: '8',
@@ -72,6 +81,7 @@ export const participants: Participant[] = [
       'MARIANGEL VICTORIA CHOURIO PEÑA demostrará su gran talento vocal y dominio escénico en la categoría B.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'B',
+    eventType: 'Canto',
   },
   {
     id: '9',
@@ -81,6 +91,7 @@ export const participants: Participant[] = [
       'SAMUEL LOGREIRA MARTINEZ buscará impresionar al jurado con su originalidad y potente mensaje en la categoría B.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'B',
+    eventType: 'Canto',
   },
   {
     id: '10',
@@ -90,6 +101,7 @@ export const participants: Participant[] = [
       'VALERIA CAROLINA MEZA CHARRIS, participante de la categoría B, ofrecerá una presentación llena de carisma y técnica.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'B',
+    eventType: 'Canto',
   },
   {
     id: '11',
@@ -99,6 +111,7 @@ export const participants: Participant[] = [
       'VANESSA ARANGO competirá en la categoría B, mostrando su talento y una propuesta artística fresca y creativa.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'B',
+    eventType: 'Canto',
   },
   {
     id: '12',
@@ -108,6 +121,81 @@ export const participants: Participant[] = [
       'DALLANA ANDREA PINEDA PÉREZ cierra la competencia en la categoría B con una interpretación vocal que promete emocionar a todos.',
     photoUrl: 'https://placehold.co/600x400.png',
     category: 'B',
+    eventType: 'Canto',
+  },
+  // Baile - Categoría A
+  {
+    id: '13',
+    name: 'GRUPO BODY & SOUL',
+    description: 'Presentación de baile.',
+    longDescription: 'El grupo BODY & SOUL trae una coreografía llena de energía y pasión para la categoría A de baile.',
+    photoUrl: 'https://placehold.co/600x400.png',
+    category: 'A',
+    eventType: 'Baile',
+  },
+  {
+    id: '14',
+    name: 'GRUPO PEQUEÑOS CON RITMO',
+    description: 'Presentación de baile.',
+    longDescription: 'PEQUEÑOS CON RITMO demostrarán su increíble coordinación y carisma en el escenario de la categoría A.',
+    photoUrl: 'https://placehold.co/600x400.png',
+    category: 'A',
+    eventType: 'Baile',
+  },
+  {
+    id: '15',
+    name: 'DANZA DE LOS PAJAROS',
+    description: 'Presentación de baile.',
+    longDescription: 'El grupo DANZA DE LOS PAJAROS presentará una pieza de baile tradicional con un toque moderno en la categoría A.',
+    photoUrl: 'https://placehold.co/600x400.png',
+    category: 'A',
+    eventType: 'Baile',
+  },
+    // Baile - Categoría B
+  {
+    id: '16',
+    name: 'GRUPO FOLCLORICO SAN FRANCISCO JAVIER',
+    description: 'Presentación de baile.',
+    longDescription: 'El GRUPO FOLCLORICO SAN FRANCISCO JAVIER mostrará la riqueza cultural de la región con su presentación en la categoría B.',
+    photoUrl: 'https://placehold.co/600x400.png',
+    category: 'B',
+    eventType: 'Baile',
+  },
+  {
+    id: '17',
+    name: 'GRUPO THE FLOW',
+    description: 'Presentación de baile.',
+    longDescription: 'THE FLOW llega a la categoría B con un estilo de baile urbano que promete sorprender a todos.',
+    photoUrl: 'https://placehold.co/600x400.png',
+    category: 'B',
+    eventType: 'Baile',
+  },
+  {
+    id: '18',
+    name: 'DANZA PALOTEO',
+    description: 'Presentación de baile.',
+    longDescription: 'DANZA PALOTEO competirá en la categoría B con una coreografía que mezcla tradición y vanguardia.',
+    photoUrl: 'https://placehold.co/600x400.png',
+    category: 'B',
+    eventType: 'Baile',
+  },
+  {
+    id: '19',
+    name: 'GRUPO REYVOLUTION',
+    description: 'Presentación de baile.',
+    longDescription: 'El grupo REYVOLUTION está listo para revolucionar la categoría B con su innovadora propuesta de baile.',
+    photoUrl: 'https://placehold.co/600x400.png',
+    category: 'B',
+    eventType: 'Baile',
+  },
+  {
+    id: '20',
+    name: 'GRUPO FOLCLORICO DE DANZA',
+    description: 'Presentación de baile.',
+    longDescription: 'El GRUPO FOLCLORICO DE DANZA cierra la categoría B con una presentación que celebra las raíces culturales a través del baile.',
+    photoUrl: 'https://placehold.co/600x400.png',
+    category: 'B',
+    eventType: 'Baile',
   },
 ];
 

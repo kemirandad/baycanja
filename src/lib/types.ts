@@ -5,6 +5,7 @@ export interface Participant {
   longDescription: string;
   photoUrl: string;
   category: 'A' | 'B';
+  eventType: 'Canto' | 'Baile';
 }
 
 export interface Criterion {

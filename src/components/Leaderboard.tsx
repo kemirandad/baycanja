@@ -33,6 +33,8 @@ import {
 import { Button } from './ui/button';
 import { ChevronDown } from 'lucide-react';
 import React from 'react';
+import type { Participant } from '@/lib/types';
+
 
 interface RankedParticipant {
   id: string;
@@ -40,6 +42,7 @@ interface RankedParticipant {
   totalScore: number;
   rank: number;
   category: 'A' | 'B';
+  eventType: 'Canto' | 'Baile';
   judgeScores: { judgeId: string; score: number }[];
 }
 
@@ -80,7 +83,7 @@ export default function Leaderboard() {
         })
         .sort((a, b) => b.totalScore - a.totalScore)
         .map((p, index, all) => {
-          const categoryPeers = all.filter((x) => x.category === p.category);
+          const categoryPeers = all.filter((x) => x.category === p.category && x.eventType === p.eventType);
           const categoryRank =
             categoryPeers.sort((a, b) => b.totalScore - a.totalScore).findIndex((x) => x.id === p.id) + 1;
 
@@ -89,12 +92,13 @@ export default function Leaderboard() {
             name: p.name,
             totalScore: p.totalScore,
             category: p.category,
+            eventType: p.eventType,
             rank: categoryRank,
             judgeScores: p.judgeScores
           };
         });
 
-      setRankedParticipants(calculatedRanks);
+      setRankedParticipants(calculatedRanks as RankedParticipant[]);
     }
   }, [scores, calculateTotalScore, isClient, currentJudgeId]);
 
@@ -112,10 +116,10 @@ export default function Leaderboard() {
     }
   };
 
-  const renderLeaderboardTable = (category: 'A' | 'B') => {
+  const renderLeaderboardTable = (eventType: 'Canto' | 'Baile', category: 'A' | 'B') => {
     if (!currentJudgeId) return null;
     const categoryParticipants = rankedParticipants.filter(
-      (p) => p.category === category
+      (p) => p.eventType === eventType && p.category === category
     );
     
     const isAnyScoreRegistered = Object.values(scores).some(judgeScores => Object.keys(judgeScores).length > 0);
@@ -146,57 +150,72 @@ export default function Leaderboard() {
           {categoryParticipants
             .sort((a, b) => a.rank - b.rank)
             .map((p) => (
-              <Collapsible key={p.id} asChild>
-                <React.Fragment>
-                  <TableRow
-                    className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
-                  >
-                    <TableCell className="text-center">
-                      <div className="flex justify-center items-center gap-2">
-                        {getPodiumIcon(p.rank)}
+               <React.Fragment key={p.id}>
+                <TableRow
+                  className={p.rank <= 3 ? 'font-bold bg-secondary/50' : ''}
+                >
+                  <TableCell className="text-center">
+                    <div className="flex justify-center items-center gap-2">
+                      {getPodiumIcon(p.rank)}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-lg">{p.name}</TableCell>
+                  <TableCell className="text-right text-lg text-primary font-mono">
+                    {p.totalScore.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <ChevronDown className="h-4 w-4" />
+                        <span className="sr-only">Ver detalles</span>
+                      </Button>
+                    </CollapsibleTrigger>
+                  </TableCell>
+                </TableRow>
+                <CollapsibleContent asChild>
+                  <TableRow>
+                    <TableCell colSpan={4} className="p-0">
+                      <div className="p-4 bg-muted/50">
+                        <h4 className="text-lg font-semibold mb-2 text-center">Desglose de Puntuaciones para {p.name}</h4>
+                        <div className="h-64 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={p.judgeScores} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="judgeId" />
+                              <YAxis domain={[0, 100]} />
+                              <Tooltip />
+                              <Legend />
+                              <Bar dataKey="score" name="Puntaje" fill="hsl(var(--primary))" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-lg">{p.name}</TableCell>
-                    <TableCell className="text-right text-lg text-primary font-mono">
-                      {p.totalScore.toFixed(2)}
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      <CollapsibleTrigger asChild>
-                         <Button variant="ghost" size="sm">
-                          <ChevronDown className="h-4 w-4" />
-                          <span className="sr-only">Ver detalles</span>
-                        </Button>
-                      </CollapsibleTrigger>
-                    </TableCell>
                   </TableRow>
-                  <CollapsibleContent asChild>
-                    <TableRow>
-                      <TableCell colSpan={4} className="p-0">
-                        <div className="p-4 bg-muted/50">
-                          <h4 className="text-lg font-semibold mb-2 text-center">Desglose de Puntuaciones para {p.name}</h4>
-                          <div className="h-64 w-full">
-                           <ResponsiveContainer width="100%" height="100%">
-                              <BarChart data={p.judgeScores} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="judgeId" />
-                                <YAxis domain={[0, 100]} />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="score" name="Puntaje" fill="hsl(var(--primary))" />
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  </CollapsibleContent>
-                </React.Fragment>
-              </Collapsible>
+                </CollapsibleContent>
+              </React.Fragment>
             ))}
         </TableBody>
       </Table>
     );
   };
+  
+  const renderCategoryTabs = (eventType: 'Canto' | 'Baile') => {
+    return (
+      <Tabs defaultValue="categoryA" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
+          <TabsTrigger value="categoryA">Categoría A</TabsTrigger>
+          <TabsTrigger value="categoryB">Categoría B</TabsTrigger>
+        </TabsList>
+        <TabsContent value="categoryA">
+          {renderLeaderboardTable(eventType, 'A')}
+        </TabsContent>
+        <TabsContent value="categoryB">
+          {renderLeaderboardTable(eventType, 'B')}
+        </TabsContent>
+      </Tabs>
+    )
+  }
 
   if (!isClient || !currentJudgeId) {
     return null; 
@@ -205,16 +224,16 @@ export default function Leaderboard() {
   return (
     <Card>
       <CardContent className="pt-6">
-        <Tabs defaultValue="categoryA" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
-            <TabsTrigger value="categoryA">Categoría A</TabsTrigger>
-            <TabsTrigger value="categoryB">Categoría B</TabsTrigger>
+        <Tabs defaultValue="canto" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-6">
+            <TabsTrigger value="canto">Canto</TabsTrigger>
+            <TabsTrigger value="baile">Baile</TabsTrigger>
           </TabsList>
-          <TabsContent value="categoryA">
-            {renderLeaderboardTable('A')}
+          <TabsContent value="canto">
+            {renderCategoryTabs('Canto')}
           </TabsContent>
-          <TabsContent value="categoryB">
-            {renderLeaderboardTable('B')}
+          <TabsContent value="baile">
+            {renderCategoryTabs('Baile')}
           </TabsContent>
         </Tabs>
       </CardContent>

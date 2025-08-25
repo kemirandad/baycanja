@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter } from 'next/navigation';
 import { useScoresStore } from '@/store/scores-store';
 import { useEffect } from 'react';
+import type { Participant } from '@/lib/types';
 
 export default function Home() {
   const router = useRouter();
@@ -29,24 +30,14 @@ export default function Home() {
   }, [currentJudgeId, router]);
 
   const photoHints = [
-    'folk dance',
-    'rock band',
-    'singer woman',
-    'magician stage',
-    'public speaking',
-    'live painting',
-    'stand up comedy',
-    'orchestra conductor',
-    'ballet dancers',
-    'dj mixing',
-    'gospel singer',
-    'acoustic guitar',
+    'folk dance', 'rock band', 'singer woman', 'magician stage',
+    'public speaking', 'live painting', 'stand up comedy', 'orchestra conductor',
+    'ballet dancers', 'dj mixing', 'gospel singer', 'acoustic guitar',
+    'modern dance', 'hip hop dance', 'traditional dance', 'dance crew',
+    'salsa dancing', 'flamenco dancer', 'group dance', 'contemporary dance'
   ];
 
-  const participantsA = participants.filter((p) => p.category === 'A');
-  const participantsB = participants.filter((p) => p.category === 'B');
-
-  const renderParticipantCard = (participant: any, index: number) => (
+  const renderParticipantCard = (participant: Participant, index: number) => (
     <Card
       key={participant.id}
       className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl bg-card/80 backdrop-blur-sm"
@@ -78,6 +69,31 @@ export default function Home() {
     </Card>
   );
 
+  const renderCategoryTabs = (eventType: 'Canto' | 'Baile') => {
+    const participantsA = participants.filter((p) => p.eventType === eventType && p.category === 'A');
+    const participantsB = participants.filter((p) => p.eventType === eventType && p.category === 'B');
+    const baseIndex = eventType === 'Canto' ? 0 : 12;
+
+    return (
+      <Tabs defaultValue="categoryA" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-10 bg-transparent border-2 border-primary p-1 rounded-lg">
+          <TabsTrigger value="categoryA" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md">Categoría A</TabsTrigger>
+          <TabsTrigger value="categoryB" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md">Categoría B</TabsTrigger>
+        </TabsList>
+        <TabsContent value="categoryA">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {participantsA.map((p, i) => renderParticipantCard(p, baseIndex + i))}
+          </div>
+        </TabsContent>
+        <TabsContent value="categoryB">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {participantsB.map((p, i) => renderParticipantCard(p, baseIndex + 6 + i))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    );
+  }
+
   if (!currentJudgeId) {
     return null;
   }
@@ -92,20 +108,16 @@ export default function Home() {
           Conoce a los talentosos artistas y oradores que compiten este año.
         </p>
       </div>
-      <Tabs defaultValue="categoryA" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-10 bg-transparent border-2 border-primary p-1 rounded-lg">
-          <TabsTrigger value="categoryA" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md">Categoría A</TabsTrigger>
-          <TabsTrigger value="categoryB" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md">Categoría B</TabsTrigger>
+      <Tabs defaultValue="canto" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-6">
+          <TabsTrigger value="canto">Canto</TabsTrigger>
+          <TabsTrigger value="baile">Baile</TabsTrigger>
         </TabsList>
-        <TabsContent value="categoryA">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {participantsA.map(renderParticipantCard)}
-          </div>
+        <TabsContent value="canto">
+          {renderCategoryTabs('Canto')}
         </TabsContent>
-        <TabsContent value="categoryB">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {participantsB.map(renderParticipantCard)}
-          </div>
+        <TabsContent value="baile">
+          {renderCategoryTabs('Baile')}
         </TabsContent>
       </Tabs>
     </div>
