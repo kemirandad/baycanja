@@ -61,11 +61,16 @@ interface RankedParticipant extends Participant {
 const calculateTotalScore = (scores: ScoreData, criteria: Criterion[]): number => {
   if (!scores) return 0;
   const totalScore = criteria.reduce((total, criterion) => {
-    const score = scores[criterion.id] || 0;
-    return total + (score * (criterion.weight / 100));
+    const scoreValue = scores[criterion.id];
+    // Asegurarse de que el valor es un número antes de sumarlo
+    if (typeof scoreValue === 'number') {
+      return total + (scoreValue * (criterion.weight / 100));
+    }
+    return total;
   }, 0);
   return totalScore * 10;
 };
+
 
 const DetailsRow = ({ participant }: { participant: RankedParticipant }) => {
   return (
@@ -243,9 +248,19 @@ export default function Leaderboard() {
     if (data.length === 0) {
       return (
         <div className="text-center py-12 text-muted-foreground">
-          <p className="text-lg">No hay participantes calificados en esta categoría aún.</p>
+          <p className="text-lg">No hay participantes en esta categoría.</p>
         </div>
       );
+    }
+
+    const qualifiedParticipants = data.filter(p => p.totalScore > 0);
+
+    if (qualifiedParticipants.length === 0) {
+        return (
+            <div className="text-center py-12 text-muted-foreground">
+              <p className="text-lg">No hay participantes calificados en esta categoría aún.</p>
+            </div>
+          );
     }
 
     return (
@@ -259,7 +274,7 @@ export default function Leaderboard() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data
+          {qualifiedParticipants
             .sort((a, b) => a.rank - b.rank)
             .map((p) => <ParticipantRow key={p.id} participant={p} />
           )}
