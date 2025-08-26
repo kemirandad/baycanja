@@ -85,7 +85,7 @@ export default function Home() {
               src={participant.photoUrl}
               alt={`Foto de ${participant.name}`}
               fill
-              className="object-cover"
+              className="object-cover object-top"
               data-ai-hint={photoHints[index % photoHints.length]}
             />
              {isGraded && (

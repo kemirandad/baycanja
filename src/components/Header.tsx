@@ -67,7 +67,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
-      <div className="container flex h-20 items-center justify-between">
+      <div className="container flex h-20 items-center">
         {/* Left Section */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-3">
@@ -77,8 +77,7 @@ export function Header() {
         </div>
         
         {/* Center Section (Desktop Nav) */}
-        {currentUser && (
-          <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="flex items-center gap-2">
               {navItems.map((item) => (
                 <Button
@@ -94,16 +93,14 @@ export function Header() {
                 </Button>
               ))}
             </div>
-          </nav>
-        )}
+        </nav>
 
         {/* Right Section */}
-        {currentUser ? (
-          <div className="flex items-center justify-end gap-4">
+        <div className="ml-auto flex items-center justify-end gap-4">
             {/* Desktop user info */}
             <div className="hidden md:flex items-center gap-2">
               <User className="h-5 w-5 text-muted-foreground" />
-              <span className="font-semibold">{currentUser.username}</span>
+              <span className="font-semibold">{currentUser?.username}</span>
             </div>
             <div className="hidden md:block">
               <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -131,10 +128,7 @@ export function Header() {
                 <LogOut className="h-5 w-5" />
               </Button>
             </div>
-          </div>
-        ) : (
-          <div /> // Placeholder for spacing when no user
-        )}
+        </div>
       </div>
     </header>
   );

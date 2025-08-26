@@ -49,7 +49,7 @@ export default function ParticipantPage({ params }: { params: { id: string } }) 
                   src={participant.photoUrl}
                   alt={`Foto de ${participant.name}`}
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   data-ai-hint={hint}
                 />
               </div>
