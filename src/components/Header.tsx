@@ -67,7 +67,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
-      <div className="container flex h-20 items-center">
+      <div className="container flex h-20 items-center justify-between">
         {/* Left Section */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-3">
@@ -96,7 +96,7 @@ export function Header() {
         </nav>
 
         {/* Right Section */}
-        <div className="ml-auto flex items-center justify-end gap-4">
+        <div className="flex items-center justify-end gap-4">
             {/* Desktop user info */}
             <div className="hidden md:flex items-center gap-2">
               <User className="h-5 w-5 text-muted-foreground" />
