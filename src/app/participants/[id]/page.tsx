@@ -51,6 +51,7 @@ export default function ParticipantPage({ params }: { params: { id: string } }) 
                   fill
                   className="object-cover object-top"
                   data-ai-hint={hint}
+                  placeholder="blur"
                 />
               </div>
             </CardHeader>

@@ -1,9 +1,11 @@
+import type { StaticImageData } from 'next/image';
+
 export interface Participant {
   id: string;
   name: string;
   description: string;
   longDescription: string;
-  photoUrl: string;
+  photoUrl: StaticImageData;
   category: 'A' | 'B';
   eventType: 'Canto' | 'Baile';
 }
