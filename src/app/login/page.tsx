@@ -17,8 +17,6 @@ import { Input } from '@/components/ui/input';
 import { LogIn, Tv } from 'lucide-react';
 import { users } from '@/lib/data';
 import Link from 'next/link';
-import { Logo } from '@/components/Logo';
-
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,11 +43,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
        <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_800px_at_100%_200px,rgba(231,72,72,0.1),transparent)]"></div></div>
       <Card className="w-full max-w-md shadow-2xl">
-        <CardHeader className="text-center">
-          <div className="flex justify-center items-center mb-4">
-            <Logo className="h-12 w-12" />
-          </div>
-          <CardTitle className="text-3xl font-extrabold">BAYCANJA</CardTitle>
+        <CardHeader className="text-center space-y-4">
+          <CardTitle className="text-4xl font-extrabold tracking-tight text-primary">BAYCANJA</CardTitle>
           <CardDescription className="text-lg">
             Bienvenido. Por favor, inicie sesión.
           </CardDescription>
