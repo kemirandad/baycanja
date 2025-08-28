@@ -2,23 +2,13 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Users, ListOrdered, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useScoresStore } from '@/store/scores-store';
 import { useEffect, useState } from 'react';
-
-const Logo = () => (
-  <Image
-    src="/logo.svg"
-    alt="Logo"
-    width={40}
-    height={40}
-    className="h-8 w-8"
-  />
-);
+import { Logo } from '@/components/Logo';
 
 export function Header() {
   const pathname = usePathname();
@@ -57,7 +47,7 @@ export function Header() {
        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
          <div className="container flex h-20 items-center justify-center">
           <Link href="/login" className="flex items-center space-x-3">
-              <Logo />
+              <Logo className="h-8 w-8" />
               <span className="text-2xl font-bold tracking-tight">BAYCANJA</span>
           </Link>
          </div>
@@ -72,7 +62,7 @@ export function Header() {
           {/* Left Section */}
           <div className="flex justify-start items-center">
             <Link href="/" className="flex items-center space-x-3">
-              <Logo />
+              <Logo className="h-8 w-8" />
               <span className="hidden sm:inline-block text-2xl font-bold tracking-tight">BAYCANJA</span>
             </Link>
           </div>

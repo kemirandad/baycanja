@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useScoresStore } from '@/store/scores-store';
 import { Button } from '@/components/ui/button';
@@ -18,16 +17,8 @@ import { Input } from '@/components/ui/input';
 import { LogIn, Tv } from 'lucide-react';
 import { users } from '@/lib/data';
 import Link from 'next/link';
+import { Logo } from '@/components/Logo';
 
-const Logo = () => (
-    <Image
-      src="/logo.svg"
-      alt="Logo"
-      width={48}
-      height={48}
-      className="h-12 w-12"
-    />
-);
 
 export default function LoginPage() {
   const router = useRouter();
@@ -56,7 +47,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-4">
-            <Logo />
+            <Logo className="h-12 w-12" />
           </div>
           <CardTitle className="text-3xl font-extrabold">BAYCANJA</CardTitle>
           <CardDescription className="text-lg">
