@@ -2,18 +2,17 @@
 'use client';
 
 import Link from 'next/link';
-import Image, { type StaticImageData } from 'next/image';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Users, ListOrdered, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useScoresStore } from '@/store/scores-store';
 import { useEffect, useState } from 'react';
-import logoSvg from '@/assets/logo.svg';
 
 const Logo = () => (
   <Image
-    src={logoSvg as StaticImageData}
+    src="/logo.svg"
     alt="Logo"
     width={40}
     height={40}

@@ -1,12 +1,11 @@
 
 'use client';
 import { usePathname } from 'next/navigation';
-import Image, { type StaticImageData } from 'next/image';
-import logoSvg from '@/assets/logo.svg';
+import Image from 'next/image';
 
 const Logo = () => (
   <Image
-    src={logoSvg as StaticImageData}
+    src="/logo.svg"
     alt="Logo"
     width={24}
     height={24}

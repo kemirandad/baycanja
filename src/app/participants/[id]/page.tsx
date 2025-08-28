@@ -14,7 +14,7 @@ export function generateStaticParams() {
   return participants.map((p) => ({ id: p.id }));
 }
 
-export default function ParticipantPage({ params }: { params: { id: string } }) {
+export default function ParticipantPage({ params }: { params: { id:string } }) {
   const participant = participants.find((p) => p.id === params.id);
 
   if (!participant) {
@@ -48,10 +48,10 @@ export default function ParticipantPage({ params }: { params: { id: string } }) 
                 <Image
                   src={participant.photoUrl}
                   alt={`Foto de ${participant.name}`}
-                  fill
-                  className="object-cover object-top"
+                  width={600}
+                  height={450}
+                  className="object-cover object-top h-full w-full"
                   data-ai-hint={hint}
-                  placeholder="blur"
                 />
               </div>
             </CardHeader>

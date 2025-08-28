@@ -84,10 +84,10 @@ export default function Home() {
             <Image
               src={participant.photoUrl}
               alt={`Foto de ${participant.name}`}
-              fill
-              className="object-cover object-top"
+              width={600}
+              height={400}
+              className="object-cover object-top h-full w-full"
               data-ai-hint={photoHints[index % photoHints.length]}
-              placeholder="blur"
             />
              {isGraded && (
               <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1.5 z-10 shadow-lg">
