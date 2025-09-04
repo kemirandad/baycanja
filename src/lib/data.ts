@@ -23,7 +23,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'JUAN JOSE PAREJO JIMENEZ competirá en la categoría A con una emocionante presentación de canto, demostrando su talento y pasión por la música.',
-    photoUrl: '/images/participants/juan-jose-parejo-jimenez.png?v=9',
+    photoUrl: '/images/participants/juan-jose-parejo-jimenez.jpg?v=10',
     category: 'A',
     eventType: 'Canto',
   },
