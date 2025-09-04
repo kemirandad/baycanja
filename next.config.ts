@@ -9,14 +9,8 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
-      },
-    ],
+    // Se elimina la configuración de remotePatterns que podría estar interfiriendo
+    // con la carga de imágenes locales en ciertos entornos de despliegue.
   },
 };
 
