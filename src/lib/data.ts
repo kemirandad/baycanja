@@ -94,7 +94,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'MARIANGEL VICTORIA CHOURIO PEÑA demostrará su gran talento vocal y dominio escénico en la categoría B.',
-    photoUrl: '/images/participants/mariangel-victoria-chourio-pena.png?v=8',
+    photoUrl: '/images/participants/mariangel-victoria-chourio-peña.png?v=8',
     category: 'B',
     eventType: 'Canto',
   },
@@ -144,7 +144,7 @@ export const participants: Participant[] = [
     name: 'GRUPO BODY & SOUL',
     description: 'Presentación de baile.',
     longDescription: 'El grupo BODY & SOUL trae una coreografía llena de energía y pasión para la categoría A de baile.',
-    photoUrl: '/images/participants/grupo-body-&-soul.png?v=8',
+    photoUrl: '/images/participants/grupo-body-and-soul.png?v=8',
     category: 'A',
     eventType: 'Baile',
   },
