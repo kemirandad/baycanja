@@ -1,3 +1,4 @@
+
 import type { Participant, Criterion, User } from './types';
 
 export const users: User[] = [
@@ -22,7 +23,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'JUAN JOSE PAREJO JIMENEZ competirá en la categoría A con una emocionante presentación de canto, demostrando su talento y pasión por la música.',
-    photoUrl: '/images/participants/juan-jose-parejo.png',
+    photoUrl: '/images/participants/juan-jose-parejo.png?v=3',
     category: 'A',
     eventType: 'Canto',
   },
@@ -32,7 +33,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'JARIANA SOFIA APRESA ARROLLO subirá al escenario para ofrecer una interpretación vocal única en la categoría A, buscando cautivar al jurado y al público.',
-    photoUrl: '/images/participants/jariana-sofia-apresa.png',
+    photoUrl: '/images/participants/jariana-sofia-apresa.png?v=3',
     category: 'A',
     eventType: 'Canto',
   },
@@ -42,7 +43,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'JAIME ANDRES VILLARETE GALEANO participa en la categoría A, listo para mostrar su desenvolvimiento escénico y su potente voz.',
-    photoUrl: '/images/participants/jaime-andres-villarete.png',
+    photoUrl: '/images/participants/jaime-andres-villarete.png?v=3',
     category: 'A',
     eventType: 'Canto',
   },
@@ -52,7 +53,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'SAMUEL DAVID NISPERUZA CAICEDO demostrará su habilidad técnica y originalidad en su presentación de canto para la categoría A.',
-    photoUrl: '/images/participants/samuel-david-nisperuza.png',
+    photoUrl: '/images/participants/samuel-david-nisperuza.png?v=3',
     category: 'A',
     eventType: 'Canto',
   },
@@ -62,7 +63,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'ANA CASTILLA competirá en la categoría A, compartiendo su talento vocal y carisma en una presentación que promete ser inolvidable.',
-    photoUrl: '/images/participants/ana-castilla.png',
+    photoUrl: '/images/participants/ana-castilla.png?v=3',
     category: 'A',
     eventType: 'Canto',
   },
@@ -72,7 +73,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'ANA LUCIA RUIZ GARCIA cierra la categoría A con una interpretación llena de sentimiento y técnica, esperando dejar una marca en el evento.',
-    photoUrl: '/images/participants/ana-lucia-ruiz.png',
+    photoUrl: '/images/participants/ana-lucia-ruiz.png?v=3',
     category: 'A',
     eventType: 'Canto',
   },
@@ -83,7 +84,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'ADRIANA YISEL CONTRERAS REINO abre la categoría B con su increíble voz, presentando una canción que tocará el corazón de todos.',
-    photoUrl: '/images/participants/adriana-yisel-contreras.png',
+    photoUrl: '/images/participants/adriana-yisel-contreras.png?v=3',
     category: 'B',
     eventType: 'Canto',
   },
@@ -93,7 +94,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'MARIANGEL VICTORIA CHOURIO PEÑA demostrará su gran talento vocal y dominio escénico en la categoría B.',
-    photoUrl: '/images/participants/mariangel-victoria-chourio.png',
+    photoUrl: '/images/participants/mariangel-victoria-chourio.png?v=3',
     category: 'B',
     eventType: 'Canto',
   },
@@ -103,7 +104,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'SAMUEL LOGREIRA MARTINEZ buscará impresionar al jurado con su originalidad y potente mensaje en la categoría B.',
-    photoUrl: '/images/participants/samuel-logreira-martinez.png',
+    photoUrl: '/images/participants/samuel-logreira-martinez.png?v=3',
     category: 'B',
     eventType: 'Canto',
   },
@@ -113,7 +114,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'VALERIA CAROLINA MEZA CHARRIS, participante de la categoría B, ofrecerá una presentación llena de carisma y técnica.',
-    photoUrl: '/images/participants/valeria-carolina-meza.png',
+    photoUrl: '/images/participants/valeria-carolina-meza.png?v=3',
     category: 'B',
     eventType: 'Canto',
   },
@@ -123,7 +124,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'VANESSA ARANGO competirá en la categoría B, mostrando su talento y una propuesta artística fresca y creativa.',
-    photoUrl: '/images/participants/vanessa-arango.png',
+    photoUrl: '/images/participants/vanessa-arango.png?v=3',
     category: 'B',
     eventType: 'Canto',
   },
@@ -133,7 +134,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'DALLANA ANDREA PINEDA PÉREZ cierra la competencia en la categoría B con una interpretación vocal que promete emocionar a todos.',
-    photoUrl: '/images/participants/dallana-andrea-pineda.png',
+    photoUrl: '/images/participants/dallana-andrea-pineda.png?v=3',
     category: 'B',
     eventType: 'Canto',
   },
@@ -143,7 +144,7 @@ export const participants: Participant[] = [
     name: 'GRUPO BODY & SOUL',
     description: 'Presentación de baile.',
     longDescription: 'El grupo BODY & SOUL trae una coreografía llena de energía y pasión para la categoría A de baile.',
-    photoUrl: '/images/participants/grupo-body-and-soul.png',
+    photoUrl: '/images/participants/grupo-body-and-soul.png?v=3',
     category: 'A',
     eventType: 'Baile',
   },
@@ -152,7 +153,7 @@ export const participants: Participant[] = [
     name: 'GRUPO PEQUEÑOS CON RITMO',
     description: 'Presentación de baile.',
     longDescription: 'PEQUEÑOS CON RITMO demostrarán su increíble coordinación y carisma en el escenario de la categoría A.',
-    photoUrl: '/images/participants/grupo-pequenos-con-ritmo.png',
+    photoUrl: '/images/participants/grupo-pequenos-con-ritmo.png?v=3',
     category: 'A',
     eventType: 'Baile',
   },
@@ -161,7 +162,7 @@ export const participants: Participant[] = [
     name: 'DANZA DE LOS PAJAROS',
     description: 'Presentación de baile.',
     longDescription: 'El grupo DANZA DE LOS PAJAROS presentará una pieza de baile tradicional con un toque moderno en la categoría A.',
-    photoUrl: '/images/participants/danza-de-los-pajaros.png',
+    photoUrl: '/images/participants/danza-de-los-pajaros.png?v=3',
     category: 'A',
     eventType: 'Baile',
   },
@@ -171,7 +172,7 @@ export const participants: Participant[] = [
     name: 'GRUPO FOLCLORICO SAN FRANCISCO JAVIER',
     description: 'Presentación de baile.',
     longDescription: 'El GRUPO FOLCLORICO SAN FRANCISCO JAVIER mostrará la riqueza cultural de la región con su presentación en la categoría B.',
-    photoUrl: '/images/participants/grupo-folclorico-sfj.png',
+    photoUrl: '/images/participants/grupo-folclorico-sfj.png?v=3',
     category: 'B',
     eventType: 'Baile',
   },
@@ -180,7 +181,7 @@ export const participants: Participant[] = [
     name: 'GRUPO THE FLOW',
     description: 'Presentación de baile.',
     longDescription: 'THE FLOW llega a la categoría B con un estilo de baile urbano que promete sorprender a todos.',
-    photoUrl: '/images/participants/grupo-the-flow.png',
+    photoUrl: '/images/participants/grupo-the-flow.png?v=3',
     category: 'B',
     eventType: 'Baile',
   },
@@ -189,7 +190,7 @@ export const participants: Participant[] = [
     name: 'DANZA PALOTEO',
     description: 'Presentación de baile.',
     longDescription: 'DANZA PALOTEO competirá en la categoría B con una coreografía que mezcla tradición y vanguardia.',
-    photoUrl: '/images/participants/danza-paloteo.png',
+    photoUrl: '/images/participants/danza-paloteo.png?v=3',
     category: 'B',
     eventType: 'Baile',
   },
@@ -198,7 +199,7 @@ export const participants: Participant[] = [
     name: 'GRUPO REYVOLUTION',
     description: 'Presentación de baile.',
     longDescription: 'El grupo REYVOLUTION está listo para revolucionar la categoría B con su innovadora propuesta de baile.',
-    photoUrl: '/images/participants/grupo-reyvolution.png',
+    photoUrl: '/images/participants/grupo-reyvolution.png?v=3',
     category: 'B',
     eventType: 'Baile',
   },
@@ -207,7 +208,7 @@ export const participants: Participant[] = [
     name: 'GRUPO FOLCLORICO DE DANZA',
     description: 'Presentación de baile.',
     longDescription: 'El GRUPO FOLCLORICO DE DANZA cierra la categoría B con una presentación que celebra las raíces culturales a través del baile.',
-    photoUrl: '/images/participants/grupo-folclorico-de-danza.png',
+    photoUrl: '/images/participants/grupo-folclorico-de-danza.png?v=3',
     category: 'B',
     eventType: 'Baile',
   },
