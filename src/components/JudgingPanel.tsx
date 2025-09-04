@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Lock } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useRouter } from 'next/navigation';
@@ -72,13 +72,8 @@ export default function JudgingPanel({
   participant: Participant;
 }) {
   const router = useRouter();
-  const { currentUser } = useScoresStore();
+  const { currentUser, _hasHydrated } = useScoresStore();
   const { toast } = useToast();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
   
   const judgeId = currentUser?.id;
   const canJudge = currentUser && (currentUser.role === 'ADMIN' || (currentUser.role === 'CANTO' && participant.eventType === 'Canto') || (currentUser.role === 'BAILE' && participant.eventType === 'Baile'));
@@ -120,8 +115,8 @@ export default function JudgingPanel({
     router.push('/');
   }
   
-  if (!isClient || !currentUser) {
-    return null;
+  if (!_hasHydrated || !currentUser) {
+    return null; // o un spinner de carga
   }
 
   if (!canJudge) {

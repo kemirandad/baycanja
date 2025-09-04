@@ -28,7 +28,7 @@ import {
 } from 'recharts';
 import { Button } from './ui/button';
 import React from 'react';
-import type { Criterion, Participant } from '@/lib/types';
+import type { Participant } from '@/lib/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -139,17 +139,15 @@ const ParticipantRow = ({ participant }: { participant: RankedParticipant }) => 
 };
 
 export default function Leaderboard({ isPublic = false }: { isPublic?: boolean }) {
-  const { currentUser } = useScoresStore();
+  const { currentUser, _hasHydrated } = useScoresStore();
   const [allScores, setAllScores] = useState<FirestoreScoreDoc[]>([]);
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    setIsClient(true);
-    if (!isPublic && !currentUser) {
+    if (!isPublic && _hasHydrated && !currentUser) {
       router.push('/login');
     }
-  }, [currentUser, router, isPublic]);
+  }, [currentUser, router, isPublic, _hasHydrated]);
 
   useEffect(() => {
     if (!db) return;
@@ -323,7 +321,7 @@ export default function Leaderboard({ isPublic = false }: { isPublic?: boolean }
     );
   };
 
-  if (!isClient || (!isPublic && !currentUser)) {
+  if (!_hasHydrated || (!isPublic && !currentUser)) {
     return null;
   }
   

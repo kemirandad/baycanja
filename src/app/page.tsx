@@ -44,13 +44,13 @@ const useHasScores = (judgeId: string | undefined, participantId: string) => {
 
 export default function Home() {
   const router = useRouter();
-  const { currentUser } = useScoresStore();
+  const { currentUser, _hasHydrated } = useScoresStore();
 
   useEffect(() => {
-    if (!currentUser) {
+    if (_hasHydrated && !currentUser) {
       router.push('/login');
     }
-  }, [currentUser, router]);
+  }, [currentUser, _hasHydrated, router]);
 
   const photoHints = [
     'folk dance', 'rock band', 'singer woman', 'magician stage',
@@ -142,8 +142,8 @@ export default function Home() {
     );
   }
 
-  if (!currentUser) {
-    return null;
+  if (!_hasHydrated || !currentUser) {
+    return null; // O un spinner de carga
   }
   
   const canSeeCanto = currentUser.role === 'ADMIN' || currentUser.role === 'CANTO';

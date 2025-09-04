@@ -7,18 +7,12 @@ import { Users, ListOrdered, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useScoresStore } from '@/store/scores-store';
-import { useEffect, useState } from 'react';
 import { Logo } from '@/components/Logo';
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, setCurrentUser } = useScoresStore();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const { currentUser, setCurrentUser, _hasHydrated } = useScoresStore();
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -30,7 +24,7 @@ export function Header() {
     { href: '/leaderboard', label: 'Resultados', icon: ListOrdered },
   ];
   
-  if (!isClient) {
+  if (!_hasHydrated) {
     return (
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
         <div className="container flex h-20 items-center" />
@@ -53,6 +47,10 @@ export function Header() {
          </div>
        </header>
     )
+  }
+  
+  if (!currentUser) {
+    return null;
   }
 
   return (

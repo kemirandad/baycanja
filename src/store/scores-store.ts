@@ -7,6 +7,8 @@ type StoredUser = Omit<User, 'password'>;
 type ScoresState = {
   currentUser: StoredUser | null;
   setCurrentUser: (user: StoredUser | null) => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (hydrated: boolean) => void;
 };
 
 export const useScoresStore = create<ScoresState>()(
@@ -14,10 +16,17 @@ export const useScoresStore = create<ScoresState>()(
     (set) => ({
       currentUser: null,
       setCurrentUser: (user) => set({ currentUser: user }),
+      _hasHydrated: false,
+      setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
     }),
     {
-      name: 'baycanja-user-storage', // only storing user now
+      name: 'baycanja-user-storage',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHasHydrated(true);
+        }
+      },
     }
   )
 );
