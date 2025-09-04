@@ -23,7 +23,7 @@ export const participants: Participant[] = [
     description: 'Presentación de canto.',
     longDescription:
       'JUAN JOSE PAREJO JIMENEZ competirá en la categoría A con una emocionante presentación de canto, demostrando su talento y pasión por la música.',
-    photoUrl: '/images/participants/juan-jose-parejo-jimenez.jpg?v=10',
+    photoUrl: '/images/participants/juan-jose-parejo-jimenez.png?v=11',
     category: 'A',
     eventType: 'Canto',
   },
@@ -183,7 +183,7 @@ export const participants: Participant[] = [
     longDescription: 'THE FLOW llega a la categoría B con un estilo de baile urbano que promete sorprender a todos.',
     photoUrl: '/images/participants/grupo-the-flow.png?v=9',
     category: 'B',
-eventType: 'Baile',
+    eventType: 'Baile',
   },
   {
     id: '18',
